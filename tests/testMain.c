@@ -1,16 +1,19 @@
 #include <check.h>
 #include <LDSC.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 /* Example of setting up a set for a method called LDSC_add(int, int)
 START_TEST(test_add) {
-  int testCount = 1;
+  int testCount = 3;
   struct {
     int x;
     int y;
     int result;
   } tests[] = {
-    {4, 5, 9}
+    {4, 5, 9},
+    {-1, 5, 4},
+    {-19, -8, -27}
   };
   int result;
   for (int i = 0; i < testCount; i++) {
@@ -20,6 +23,19 @@ START_TEST(test_add) {
 } END_TEST
 */
 
+START_TEST(linkedList_init) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+
+  int length = LDSC_linkedList_length(myLL);
+  LDSC_linkedList* head = LDSC_linkedList_head(myLL);
+  LDSC_linkedList* tail = LDSC_linkedList_tail(myLL);
+
+  ck_assert_int_eq(length, 0);
+  ck_assert_ptr_eq(head, NULL);
+  ck_assert_ptr_eq(tail, NULL);
+
+} END_TEST
+
 Suite *LDS_suite() {
   Suite *s;
   TCase *tc_core;
@@ -28,6 +44,7 @@ Suite *LDS_suite() {
 
   suite_add_tcase(s, tc_core);
   //tcase_add_test(tc_core, test_add); // example of adding a test
+  tcase_add_test(tc_core, linkedList_init); 
   
   return s;
 }
