@@ -1,1 +1,1 @@
-# LDSC - Linked Data Structures for C
+# LDSC - Linked Data Structures in C
