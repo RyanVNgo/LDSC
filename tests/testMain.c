@@ -27,8 +27,8 @@ START_TEST(linkedList_init) {
   LDSC_linkedList* myLL = LDSC_linkedList_init();
 
   int length = LDSC_linkedList_length(myLL);
-  LDSC_linkedList* head = LDSC_linkedList_head(myLL);
-  LDSC_linkedList* tail = LDSC_linkedList_tail(myLL);
+  LDSC_node* head = LDSC_linkedList_head(myLL);
+  LDSC_node* tail = LDSC_linkedList_tail(myLL);
 
   ck_assert_int_eq(length, 0);
   ck_assert_ptr_eq(head, NULL);
