@@ -27,7 +27,7 @@ Suite *LDS_suite() {
   tc_core = tcase_create("Core");
 
   suite_add_tcase(s, tc_core);
-  //tcase_add_test(tc_core, test_add); 
+  //tcase_add_test(tc_core, test_add); // example of adding a test
 
   return s;
 }
