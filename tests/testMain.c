@@ -14,7 +14,7 @@ START_TEST(test_add) {
   };
   int result;
   for (int i = 0; i < testCount; i++) {
-    result = LDSC_add(tests[i].x, tests[i].y);
+    result = LDSC_add(tests[i].x, tests[i].y); // method
     ck_assert_int_eq(tests[i].result, result);
   }
 } END_TEST
