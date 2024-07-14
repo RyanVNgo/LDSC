@@ -28,10 +28,9 @@ Suite *LDS_suite() {
 
   suite_add_tcase(s, tc_core);
   //tcase_add_test(tc_core, test_add); // example of adding a test
-
+  
   return s;
 }
-
 
 int main() {
   int numberFailed;
