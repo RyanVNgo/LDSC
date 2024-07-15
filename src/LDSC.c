@@ -31,7 +31,7 @@ int LDSC_linkedList_length(LDSC_linkedList* inLL) {return inLL->length;}
 LDSC_node* LDSC_linkedList_head(LDSC_linkedList* inLL) {return inLL->head;}
 LDSC_node* LDSC_linkedList_tail(LDSC_linkedList* inLL) {return inLL->tail;}
 
-void LDSC_linkedList_insert(LDSC_linkedList* LLin, void* dataPtr) {
+void LDSC_linkedList_append(LDSC_linkedList* LLin, void* dataPtr) {
   if (LLin == NULL) return;
   if (dataPtr == NULL) return;
 
@@ -43,12 +43,26 @@ void LDSC_linkedList_insert(LDSC_linkedList* LLin, void* dataPtr) {
     return;
   }
 
-  LDSC_node* currNode = LLin->head;
-  for (int i = 0; i < LLin->length - 1; i++)
-    currNode = currNode->next;
-
-  currNode->next = newNode;
+  LLin->tail->next = newNode;
   LLin->tail = newNode;
+  LLin->length++;
+  return;
+}
+
+void LDSC_linkedList_prepend(LDSC_linkedList* LLin, void* dataPtr) {
+  if (LLin == NULL) return;
+  if (dataPtr == NULL) return;
+
+  LDSC_node* newNode = LDSC_node_init(dataPtr);
+  if (LLin->head == NULL) {
+    LLin->head = newNode;
+    LLin->tail = newNode;
+    LLin->length++;
+    return;
+  }
+
+  newNode->next = LLin->head;
+  LLin->head = newNode;
   LLin->length++;
   return;
 }
