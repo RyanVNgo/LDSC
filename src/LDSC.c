@@ -81,3 +81,22 @@ void* LDSC_linkedList_get(LDSC_linkedList* LLin, int index) {
   return currNode->dataPtr;
 }
 
+void LDSC_linkedList_insert(LDSC_linkedList* LLin, void* dataPtr, int index) {
+  if (LLin == NULL) return;
+  if (dataPtr == NULL) return;
+  if (index < 0) return;
+  if (index > LLin->length) return;
+  if (index == 0) {LDSC_linkedList_prepend(LLin, dataPtr); return;}
+  if (index == LLin->length) {LDSC_linkedList_append(LLin, dataPtr); return;}
+
+  LDSC_node* prevNodeOfInsert = LLin->head;
+  for (int i = 0; i < index - 1; i++)
+    prevNodeOfInsert = prevNodeOfInsert->next;
+
+  LDSC_node* newNode = LDSC_node_init(dataPtr);
+  newNode->next = prevNodeOfInsert->next;
+  prevNodeOfInsert->next = newNode;
+  LLin->length++;
+  return;
+}
+

@@ -220,6 +220,149 @@ START_TEST(linkedList_get) {
 
 // TEST CASE GET END 
 
+// TEST CASE INSERT START
+
+START_TEST(linkedList_null_list_insert) {
+  int testData = 17, index = 0;
+  LDSC_linkedList_insert(NULL, (void*)&testData, index);
+} END_TEST
+
+START_TEST(linkedList_null_data_insert) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  int index = 0;
+  LDSC_linkedList_insert(myLL, NULL, index);
+
+  int length = LDSC_linkedList_length(myLL);
+  LDSC_node* head = LDSC_linkedList_head(myLL);
+  LDSC_node* tail = LDSC_linkedList_tail(myLL);
+
+  ck_assert_int_eq(length, 0);
+  ck_assert_ptr_null(head);
+  ck_assert_ptr_null(tail);
+
+  free(myLL);
+} END_TEST
+
+START_TEST(linkedList_neg_index_insert) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  int testData = 17, index = -1;
+  LDSC_linkedList_insert(myLL, (void*)&testData, index);
+
+  int length = LDSC_linkedList_length(myLL);
+  LDSC_node* head = LDSC_linkedList_head(myLL);
+  LDSC_node* tail = LDSC_linkedList_tail(myLL);
+
+  ck_assert_int_eq(length, 0);
+  ck_assert_ptr_null(head);
+  ck_assert_ptr_null(tail);
+
+  free(myLL);
+} END_TEST
+
+START_TEST(linkedList_greater_index_insert) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  int nodeCount = 3;
+  int testData[] = {
+    17,
+    9,
+    19
+  };
+  for (int i = 0; i < nodeCount; i++)
+    LDSC_linkedList_append(myLL, (void*)&testData[i]);
+
+  int testDataInsert = 22, index = -1;
+  LDSC_linkedList_insert(myLL, (void*)&testDataInsert, index);
+  int length = LDSC_linkedList_length(myLL);
+  ck_assert_int_eq(length, nodeCount);
+
+  free(myLL);
+} END_TEST
+
+START_TEST(linkedList_zero_index_insert) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  int nodeCount = 3;
+  int testData[] = {
+    17,
+    9,
+    19
+  };
+  for (int i = 0; i < nodeCount; i++)
+    LDSC_linkedList_append(myLL, (void*)&testData[i]);
+  
+  LDSC_node* initHead = LDSC_linkedList_head(myLL);
+
+  int testDataInsert = 22, index = 0;
+  LDSC_linkedList_insert(myLL, (void*)&testDataInsert, index);
+  LDSC_node* newHead = LDSC_linkedList_head(myLL);
+  int length = LDSC_linkedList_length(myLL);
+
+  ck_assert_int_eq(nodeCount + 1, length);
+  ck_assert_ptr_ne(initHead, newHead);
+
+  free(myLL);
+} END_TEST
+
+START_TEST(linkedList_length_index_insert) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  int nodeCount = 3;
+  int testData[] = {
+    17,
+    9,
+    19
+  };
+  for (int i = 0; i < nodeCount; i++)
+    LDSC_linkedList_append(myLL, (void*)&testData[i]);
+  
+  LDSC_node* initTail = LDSC_linkedList_tail(myLL);
+
+  int testDataInsert = 22, index = nodeCount;
+  LDSC_linkedList_insert(myLL, (void*)&testDataInsert, index);
+  LDSC_node* newTail = LDSC_linkedList_tail(myLL);
+  int length = LDSC_linkedList_length(myLL);
+
+  ck_assert_int_eq(nodeCount + 1, length);
+  ck_assert_ptr_ne(initTail, newTail);
+
+  free(myLL);
+} END_TEST
+
+START_TEST(linkedList_other_index_insert) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  int nodeCount = 3;
+  int testData[] = {
+    17,
+    9,
+    19
+  };
+  for (int i = 0; i < nodeCount; i++)
+    LDSC_linkedList_append(myLL, (void*)&testData[i]);
+
+  LDSC_node* initHead = LDSC_linkedList_head(myLL);
+  LDSC_node* initTail = LDSC_linkedList_tail(myLL);
+
+  int testDataInsert = 22, index = 2;
+  LDSC_linkedList_insert(myLL, (void*)&testDataInsert, index);
+
+  int length = LDSC_linkedList_length(myLL);
+  LDSC_node* newHead = LDSC_linkedList_head(myLL);
+  LDSC_node* newTail = LDSC_linkedList_tail(myLL);
+
+  ck_assert_int_eq(length, nodeCount + 1);
+  ck_assert_ptr_eq(initHead, newHead);
+  ck_assert_ptr_eq(initTail, newTail);
+
+  int dataOut = *(int*)LDSC_linkedList_get(myLL, index);
+  int prevDataOut = *(int*)LDSC_linkedList_get(myLL, index - 1);
+  int nextDataOut = *(int*)LDSC_linkedList_get(myLL, index + 1);
+  ck_assert_int_eq(dataOut, testDataInsert);
+  ck_assert_int_eq(prevDataOut, testData[index - 1]);
+  ck_assert_int_eq(nextDataOut, testData[index]);
+
+  free(myLL);
+} END_TEST
+
+// TEST CASE INSERT END
+
 // SUITE DEFINITION
 
 Suite* LDSC_linkedList_suite() {
@@ -230,21 +373,21 @@ Suite* LDSC_linkedList_suite() {
   tcase_add_test(tc_core, linkedList_init);
   suite_add_tcase(s, tc_core);
 
-  TCase* tc_insert = tcase_create("Append");
-  tcase_add_test(tc_insert, linkedList_null_list_append);
-  tcase_add_test(tc_insert, linkedList_null_data_append);
-  tcase_add_test(tc_insert, linkedList_empty_append);
-  tcase_add_test(tc_insert, linkedList_nonempty_append);
-  suite_add_tcase(s, tc_insert);
+  TCase* tc_append= tcase_create("Append");
+  tcase_add_test(tc_append, linkedList_null_list_append);
+  tcase_add_test(tc_append, linkedList_null_data_append);
+  tcase_add_test(tc_append, linkedList_empty_append);
+  tcase_add_test(tc_append, linkedList_nonempty_append);
+  suite_add_tcase(s, tc_append);
 
   TCase* tc_prepend = tcase_create("Prepend");
   tcase_add_test(tc_prepend, linkedList_null_list_prepend);
-  tcase_add_test(tc_insert, linkedList_null_data_prepend);
-  tcase_add_test(tc_insert, linkedList_empty_prepend);
-  tcase_add_test(tc_insert, linkedList_nonempty_prepend);
+  tcase_add_test(tc_prepend, linkedList_null_data_prepend);
+  tcase_add_test(tc_prepend, linkedList_empty_prepend);
+  tcase_add_test(tc_prepend, linkedList_nonempty_prepend);
   suite_add_tcase(s, tc_prepend);
 
-  TCase* tc_get= tcase_create("Get");
+  TCase* tc_get = tcase_create("Get");
   tcase_add_test(tc_get, linkedList_null_list_get);
   tcase_add_test(tc_get, linkedList_neg_index_get);
   tcase_add_test(tc_get, linkedList_length_index_get);
@@ -252,6 +395,16 @@ Suite* LDSC_linkedList_suite() {
   tcase_add_test(tc_get, linkedList_get);
   suite_add_tcase(s, tc_get);
 
+  TCase* tc_insert = tcase_create("Insert");
+  tcase_add_test(tc_insert, linkedList_null_list_insert);
+  tcase_add_test(tc_insert, linkedList_null_data_insert);
+  tcase_add_test(tc_insert, linkedList_neg_index_insert);
+  tcase_add_test(tc_insert, linkedList_greater_index_insert);
+  tcase_add_test(tc_insert, linkedList_zero_index_insert);
+  tcase_add_test(tc_insert, linkedList_length_index_insert);
+  tcase_add_test(tc_insert, linkedList_other_index_insert);
+  suite_add_tcase(s, tc_insert);
 
   return s;
 }
+
