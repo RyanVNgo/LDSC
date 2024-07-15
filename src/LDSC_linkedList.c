@@ -27,14 +27,25 @@ LDSC_linkedList* LDSC_linkedList_init() {
   return newLL;
 }
 
-int LDSC_linkedList_length(LDSC_linkedList* inLL) {return inLL->length;}
-void* LDSC_linkedList_head(LDSC_linkedList* inLL) {
-  if (inLL->length == 0) return NULL;
-  return inLL->head->dataPtr;
+LDSC_node* LDSC_linkedList_getNode(LDSC_linkedList* LLin, int index) {
+  if (index < 0) return NULL;
+  if (index >= LLin->length) return NULL;
+  LDSC_node* returnNode = LLin->head;
+  for (int i = 0; i < index; i++)
+    returnNode = returnNode->next;
+  return returnNode; 
 }
-void* LDSC_linkedList_tail(LDSC_linkedList* inLL) {
-  if (inLL->length == 0) return NULL;
-  return inLL->tail->dataPtr;
+
+int LDSC_linkedList_length(LDSC_linkedList* LLin) {return LLin->length;}
+
+void* LDSC_linkedList_head(LDSC_linkedList* LLin) {
+  if (LLin->length == 0) return NULL;
+  return LLin->head->dataPtr;
+}
+
+void* LDSC_linkedList_tail(LDSC_linkedList* LLin) {
+  if (LLin->length == 0) return NULL;
+  return LLin->tail->dataPtr;
 }
 
 void LDSC_linkedList_append(LDSC_linkedList* LLin, void* dataPtr) {
@@ -122,3 +133,26 @@ void* LDSC_linkedList_removeFirst(LDSC_linkedList* LLin) {
   return firstDataPtr;
 }
 
+void* LDSC_linkedList_removeLast(LDSC_linkedList* LLin) {
+  if (LLin == NULL) return NULL;
+  if (LLin->length == 0) return NULL;
+  if (LLin->length == 1) {
+    void* lastDataPtr = LLin->tail->dataPtr;
+    free(LLin->tail);
+    LLin->head = NULL;
+    LLin->tail = NULL;
+    LLin->length--;
+    return lastDataPtr;
+  }
+
+  LDSC_node* oldTail = LLin->tail;
+  void* lastDataPtr = oldTail->dataPtr;
+
+  LDSC_node* newTail = LDSC_linkedList_getNode(LLin, LLin->length - 2);
+  LLin->length--;
+  LLin->tail = newTail;
+  if (LLin->length <= 1) LLin->head = newTail;
+
+  free(oldTail);
+  return lastDataPtr;
+}

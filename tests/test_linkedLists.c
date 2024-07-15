@@ -450,6 +450,93 @@ START_TEST(linkedList_removeFirst) {
 
 // TEST CASE REMOVEFIRST END
 
+// TEST CASE REMOVELAST START
+
+START_TEST(linkedList_null_list_removeLast) {
+  void* dataOutPtr = LDSC_linkedList_removeLast(NULL);
+  ck_assert_ptr_null(dataOutPtr);
+} END_TEST
+
+START_TEST(linkedList_empty_list_removeLast) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  void* dataOutPtr = LDSC_linkedList_removeLast(myLL);
+  ck_assert_ptr_null(dataOutPtr);
+  free(myLL);
+} END_TEST
+
+START_TEST(linkedList_single_item_list_removeLast) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  int testData = 17;
+  LDSC_linkedList_append(myLL, (void*)&testData);
+
+  int dataOut = *(int*)LDSC_linkedList_removeLast(myLL);
+  void* head = LDSC_linkedList_head(myLL);
+  void* tail = LDSC_linkedList_tail(myLL);
+
+  ck_assert_ptr_null(head);
+  ck_assert_ptr_null(tail);
+  ck_assert_int_eq(testData, dataOut);
+
+  free(myLL);
+} END_TEST
+
+START_TEST(linkedList_two_item_list_removeLast) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  int nodeCount = 2;
+  int testData[] = {
+    17,
+    9
+  };
+  LDSC_linkedList_append(myLL, (void*)&testData[0]);
+  LDSC_linkedList_append(myLL, (void*)&testData[1]);
+
+  int dataOut = *(int*)LDSC_linkedList_removeLast(myLL);
+  int length = LDSC_linkedList_length(myLL);
+  void* head = LDSC_linkedList_head(myLL);
+  void* tail = LDSC_linkedList_tail(myLL);
+
+  ck_assert_ptr_nonnull(head);
+  ck_assert_ptr_nonnull(tail);
+  ck_assert_ptr_eq(head, tail);
+  ck_assert_int_eq(nodeCount - 1, length);
+  ck_assert_int_eq(testData[1], dataOut);
+  dataOut = *(int*)LDSC_linkedList_get(myLL, 0);
+  ck_assert_int_eq(testData[0], dataOut);
+
+  free(myLL);
+} END_TEST
+
+START_TEST(linkedList_removeLast) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  int nodeCount = 3;
+  int testData[] = {
+    17,
+    9,
+    19
+  };
+  for (int i = 0; i < nodeCount; i++)
+    LDSC_linkedList_append(myLL, (void*)&testData[i]);
+
+  int dataOut = *(int*)LDSC_linkedList_removeLast(myLL);
+  int length = LDSC_linkedList_length(myLL);
+  void* head = LDSC_linkedList_head(myLL);
+  void* tail = LDSC_linkedList_tail(myLL);
+
+  ck_assert_ptr_nonnull(head);
+  ck_assert_ptr_nonnull(tail);
+  ck_assert_ptr_ne(head, tail);
+  ck_assert_int_eq(nodeCount - 1, length);
+  ck_assert_int_eq(testData[nodeCount - 1], dataOut);
+  for (int i = 0; i < nodeCount - 1; i++) {
+    dataOut = *(int*)LDSC_linkedList_get(myLL, i);
+    ck_assert_int_eq(testData[i], dataOut);
+  }
+
+  free(myLL);
+} END_TEST
+
+// TEST CASE REMOVELAST END
+
 // SUITE DEFINITION
 
 Suite* LDSC_linkedList_suite() {
@@ -499,6 +586,14 @@ Suite* LDSC_linkedList_suite() {
   tcase_add_test(tc_removeFirst, linkedList_two_item_list_removeFirst);
   tcase_add_test(tc_removeFirst, linkedList_removeFirst);
   suite_add_tcase(s, tc_removeFirst);
+
+  TCase* tc_removeLast= tcase_create("removeLast");
+  tcase_add_test(tc_removeLast, linkedList_null_list_removeLast);
+  tcase_add_test(tc_removeLast, linkedList_empty_list_removeLast);
+  tcase_add_test(tc_removeLast, linkedList_single_item_list_removeLast);
+  tcase_add_test(tc_removeLast, linkedList_two_item_list_removeLast);
+  tcase_add_test(tc_removeLast, linkedList_removeLast);
+  suite_add_tcase(s, tc_removeLast);
 
   return s;
 }
