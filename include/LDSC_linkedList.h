@@ -14,5 +14,6 @@ void* LDSC_linkedList_get(LDSC_linkedList*, int);
 void LDSC_linkedList_insert(LDSC_linkedList*, void*, int);
 void* LDSC_linkedList_removeFirst(LDSC_linkedList*);
 void* LDSC_linkedList_removeLast(LDSC_linkedList*);
+void* LDSC_linkedList_remove(LDSC_linkedList*, int);
 
 #endif
