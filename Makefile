@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Iinclude -Wall -Wextra -Werror
+CFLAGS = -std=c11 -Iinclude -Wall -Wextra -Werror
 
 SRC = $(wildcard src/*.c)
 OBJ = $(SRC:.c=.o)
@@ -8,7 +8,7 @@ TESTS = $(wildcard tests/*.c)
 TARGET = libLDSC.a
 
 TESTTARGET = test_runner
-CFLAGSTEST = -Iinclude -Wall
+CFLAGSTEST = -std=c11 -Iinclude -Wall
 LDFLAGS = -lcheck -lm -lsubunit
 
 all: $(TARGET)

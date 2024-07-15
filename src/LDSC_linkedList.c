@@ -1,10 +1,10 @@
-#include <LDSC.h>
+#include <LDSC_linkedList.h>
 #include <stdlib.h>
 
-struct LDSC_node {
+typedef struct LDSC_node {
   void* dataPtr;
-  LDSC_node* next;
-};
+  struct LDSC_node* next;
+} LDSC_node;
 
 LDSC_node* LDSC_node_init(void* dataPtrIn) {
   LDSC_node* newNode = (LDSC_node*)malloc(sizeof(LDSC_node));
@@ -28,8 +28,14 @@ LDSC_linkedList* LDSC_linkedList_init() {
 }
 
 int LDSC_linkedList_length(LDSC_linkedList* inLL) {return inLL->length;}
-LDSC_node* LDSC_linkedList_head(LDSC_linkedList* inLL) {return inLL->head;}
-LDSC_node* LDSC_linkedList_tail(LDSC_linkedList* inLL) {return inLL->tail;}
+void* LDSC_linkedList_head(LDSC_linkedList* inLL) {
+  if (inLL->length == 0) return NULL;
+  return inLL->head->dataPtr;
+}
+void* LDSC_linkedList_tail(LDSC_linkedList* inLL) {
+  if (inLL->length == 0) return NULL;
+  return inLL->tail->dataPtr;
+}
 
 void LDSC_linkedList_append(LDSC_linkedList* LLin, void* dataPtr) {
   if (LLin == NULL) return;
@@ -98,5 +104,21 @@ void LDSC_linkedList_insert(LDSC_linkedList* LLin, void* dataPtr, int index) {
   prevNodeOfInsert->next = newNode;
   LLin->length++;
   return;
+}
+
+void* LDSC_linkedList_removeFirst(LDSC_linkedList* LLin) {
+  if (LLin == NULL) return NULL;
+  if (LLin->length == 0) return NULL;
+
+  LDSC_node* oldHead = LLin->head;
+  void* firstDataPtr = oldHead->dataPtr;
+
+  LDSC_node* newHead = oldHead->next;
+  LLin->length--;
+  LLin->head = newHead;
+  if (LLin->length <= 1) LLin->tail = newHead;
+
+  free(oldHead);
+  return firstDataPtr;
 }
 
