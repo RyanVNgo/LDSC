@@ -2,7 +2,6 @@
 A library providing a collection of standard data structures.
 ## Current Data Structures
 - Linked List
-- Stack
 ## Requirements
 - `gcc`
 - `make`
