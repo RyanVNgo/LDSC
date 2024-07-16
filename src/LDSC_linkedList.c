@@ -6,7 +6,7 @@ typedef struct LDSC_node {
   struct LDSC_node* next;
 } LDSC_node;
 
-LDSC_node* LDSC_node_init(void* dataPtrIn) {
+static LDSC_node* LDSC_node_init(void* dataPtrIn) {
   LDSC_node* newNode = (LDSC_node*)malloc(sizeof(LDSC_node));
   newNode->dataPtr = dataPtrIn;
   newNode->next = NULL;
@@ -55,13 +55,13 @@ void* LDSC_linkedList_tail(LDSC_linkedList* LLin) {
   return LLin->tail->dataPtr;
 }
 
-void LDSC_linkedList_append(LDSC_linkedList* LLin, void* dataPtr) {
+void LDSC_linkedList_append(LDSC_linkedList* LLin, void* dataPtrIn) {
   // conditions for invalid parameters
   if (LLin == NULL) return;
-  if (dataPtr == NULL) return;
+  if (dataPtrIn == NULL) return;
 
   // create new node
-  LDSC_node* newNode = LDSC_node_init(dataPtr);
+  LDSC_node* newNode = LDSC_node_init(dataPtrIn);
 
   // condition if list is empty, inferred by null head
   if (LLin->head == NULL) {
@@ -87,13 +87,13 @@ void LDSC_linkedList_append(LDSC_linkedList* LLin, void* dataPtr) {
   return;
 }
 
-void LDSC_linkedList_prepend(LDSC_linkedList* LLin, void* dataPtr) {
+void LDSC_linkedList_prepend(LDSC_linkedList* LLin, void* dataPtrIn) {
   // conditions for invalid parameters
   if (LLin == NULL) return;
-  if (dataPtr == NULL) return;
+  if (dataPtrIn == NULL) return;
 
   // create new node
-  LDSC_node* newNode = LDSC_node_init(dataPtr);
+  LDSC_node* newNode = LDSC_node_init(dataPtrIn);
   
   // condition if list is empty, inferred by nul head
   if (LLin->head == NULL) {
@@ -138,24 +138,24 @@ void* LDSC_linkedList_get(LDSC_linkedList* LLin, int index) {
   return targetNode->dataPtr;
 }
 
-void LDSC_linkedList_insert(LDSC_linkedList* LLin, void* dataPtr, int index) {
+void LDSC_linkedList_insert(LDSC_linkedList* LLin, void* dataPtrIn, int index) {
   // conditions for invalid parameters
   if (LLin == NULL) return;
-  if (dataPtr == NULL) return;
+  if (dataPtrIn == NULL) return;
   if (index < 0) return;
   if (index > LLin->length) return;
 
   // if inserting at head, call preprend function and exit
-  if (index == 0) {LDSC_linkedList_prepend(LLin, dataPtr); return;}
+  if (index == 0) {LDSC_linkedList_prepend(LLin, dataPtrIn); return;}
   
   // if inserting at tail, call append function and exit
-  if (index == LLin->length) {LDSC_linkedList_append(LLin, dataPtr); return;}
+  if (index == LLin->length) {LDSC_linkedList_append(LLin, dataPtrIn); return;}
 
   // retrieve the node that will come before the inserted node
   LDSC_node* prevNodeOfInsert = LDSC_linkedList_getNode(LLin, index-1);
 
   // create new node
-  LDSC_node* newNode = LDSC_node_init(dataPtr);
+  LDSC_node* newNode = LDSC_node_init(dataPtrIn);
 
   // set the new node's next to it's previous nodes next
   newNode->next = prevNodeOfInsert->next;

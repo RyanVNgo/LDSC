@@ -5,6 +5,8 @@
 #include <LDSC.h>
 
 #include "test_linkedLists.h"
+#include "test_stack.h"
+
 
 START_TEST(check) {} END_TEST
 Suite* sr_init(void) {
@@ -25,6 +27,8 @@ int main() {
   sr = srunner_create(sr_init());
 
   srunner_add_suite(sr, LDSC_linkedList_suite());
+  srunner_add_suite(sr, LDSC_stack_suite());
+
   srunner_run_all(sr, CK_VERBOSE);
 
   numberFailed = srunner_ntests_failed(sr);
