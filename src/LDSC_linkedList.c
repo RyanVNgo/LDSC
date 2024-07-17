@@ -29,8 +29,7 @@ LDSC_linkedList* LDSC_linkedList_init() {
 
 LDSC_node* LDSC_linkedList_getNode(LDSC_linkedList* LLin, int index) {
   // conditions for invalid parameters
-  if (index < 0) return NULL;
-  if (index >= LLin->length) return NULL;
+  if (index < 0 || index >= LLin->length) return NULL;
 
   // start at head node
   LDSC_node* returnNode = LLin->head;
@@ -57,14 +56,13 @@ void* LDSC_linkedList_tail(LDSC_linkedList* LLin) {
 
 void LDSC_linkedList_append(LDSC_linkedList* LLin, void* dataPtrIn) {
   // conditions for invalid parameters
-  if (LLin == NULL) return;
-  if (dataPtrIn == NULL) return;
+  if (!LLin || !dataPtrIn) return;
 
   // create new node
   LDSC_node* newNode = LDSC_node_init(dataPtrIn);
 
   // condition if list is empty, inferred by null head
-  if (LLin->head == NULL) {
+  if (!LLin->head) {
     // set new node as new head and tail of list
     LLin->head = newNode;
     LLin->tail = newNode;
@@ -89,14 +87,13 @@ void LDSC_linkedList_append(LDSC_linkedList* LLin, void* dataPtrIn) {
 
 void LDSC_linkedList_prepend(LDSC_linkedList* LLin, void* dataPtrIn) {
   // conditions for invalid parameters
-  if (LLin == NULL) return;
-  if (dataPtrIn == NULL) return;
+  if (!LLin || !dataPtrIn) return;
 
   // create new node
   LDSC_node* newNode = LDSC_node_init(dataPtrIn);
   
   // condition if list is empty, inferred by nul head
-  if (LLin->head == NULL) {
+  if (!LLin->head) {
     // set new node as new head and tail of list
     LLin->head = newNode;
     LLin->tail = newNode;
@@ -121,9 +118,7 @@ void LDSC_linkedList_prepend(LDSC_linkedList* LLin, void* dataPtrIn) {
 
 void* LDSC_linkedList_get(LDSC_linkedList* LLin, int index) {
   // conditions for invalid parameters
-  if (LLin == NULL) return NULL;
-  if (index < 0) return NULL;
-  if (index >= LLin->length) return NULL;
+  if (!LLin || index < 0 || index >= LLin->length) return NULL;
   
   // return data of head if index == 0
   if (index == 0) return LLin->head->dataPtr;
@@ -140,10 +135,7 @@ void* LDSC_linkedList_get(LDSC_linkedList* LLin, int index) {
 
 void LDSC_linkedList_insert(LDSC_linkedList* LLin, void* dataPtrIn, int index) {
   // conditions for invalid parameters
-  if (LLin == NULL) return;
-  if (dataPtrIn == NULL) return;
-  if (index < 0) return;
-  if (index > LLin->length) return;
+  if (!LLin || !dataPtrIn || index < 0 || index > LLin->length) return;
 
   // if inserting at head, call preprend function and exit
   if (index == 0) {LDSC_linkedList_prepend(LLin, dataPtrIn); return;}
@@ -170,8 +162,7 @@ void LDSC_linkedList_insert(LDSC_linkedList* LLin, void* dataPtrIn, int index) {
 
 void* LDSC_linkedList_removeFirst(LDSC_linkedList* LLin) {
   // conditions for invalid parameters
-  if (LLin == NULL) return NULL;
-  if (LLin->length == 0) return NULL;
+  if (!LLin || !LLin->length) return NULL;
 
   // get current head node of list
   LDSC_node* oldHead = LLin->head;
@@ -197,8 +188,7 @@ void* LDSC_linkedList_removeFirst(LDSC_linkedList* LLin) {
 
 void* LDSC_linkedList_removeLast(LDSC_linkedList* LLin) {
   // condition for invalid parameters
-  if (LLin == NULL) return NULL;
-  if (LLin->length == 0) return NULL;
+  if (!LLin || !LLin->length) return NULL;
 
   // condtion for a 1 element list
   // in a 1 element list, removeFirst == removeLast
@@ -232,10 +222,7 @@ void* LDSC_linkedList_removeLast(LDSC_linkedList* LLin) {
 
 void* LDSC_linkedList_remove(LDSC_linkedList* LLin, int index) {
   // condition for invalid parameters
-  if (LLin == NULL) return NULL;
-  if (LLin->length == 0) return NULL;
-  if (index < 0) return NULL;
-  if (index >= LLin->length) return NULL;
+  if (!LLin || !LLin->length || index < 0 || index >= LLin->length) return NULL;
 
   // if removing head, call removeFirst and return;
   if (index == 0) return LDSC_linkedList_removeFirst(LLin);
