@@ -53,7 +53,7 @@ void LDSC_queue_enqueue(LDSC_queue* queueIn, void* dataPtrIn) {
 }
 
 void* LDSC_queue_dequeue(LDSC_queue* queueIn) {
-  if (!queueIn) return NULL;
+  if (!queueIn || !queueIn->length) return NULL;
   LDSC_node* oldHead = queueIn->head;
   void* dataPtrOut = oldHead->dataPtr;
   queueIn->head = oldHead->next;
