@@ -806,6 +806,55 @@ START_TEST(linkedList_remove) {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - -
 
+// TEST CASE INTEGRATION START
+
+START_TEST(linkedList_integration) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+
+  void* dataOutPtr;
+  int trackedLength = 0;
+
+  int nodeCount = 3;
+  int testData[] = {17, 9, 19};
+  for (int i = 0; i < nodeCount; i++) {
+    LDSC_linkedList_append(myLL, (void*)&testData[i]);
+    trackedLength++;
+  }
+
+  int length = LDSC_linkedList_length(myLL);
+  ck_assert_int_eq(length, trackedLength);
+
+  dataOutPtr = LDSC_linkedList_removeFirst(myLL);
+  trackedLength--;
+  ck_assert_int_eq(*(int*)dataOutPtr, testData[0]);
+
+  dataOutPtr = LDSC_linkedList_removeLast(myLL);
+  trackedLength--;
+  ck_assert_int_eq(*(int*)dataOutPtr, testData[2]);
+
+  length = LDSC_linkedList_length(myLL);
+  ck_assert_int_eq(length, trackedLength);
+
+  int testDataExtra = 22;
+  LDSC_linkedList_insert(myLL, &testDataExtra, trackedLength);
+  trackedLength++;
+
+  length = LDSC_linkedList_length(myLL);
+  ck_assert_int_eq(length, trackedLength);
+
+  dataOutPtr = LDSC_linkedList_get(myLL, 0);
+  ck_assert_int_eq(*(int*)dataOutPtr, testData[1]);
+
+  length = LDSC_linkedList_length(myLL);
+  ck_assert_int_eq(length, trackedLength);
+
+  free(myLL);
+} END_TEST
+
+// TEST CASE INTEGRATION END
+
+// - - - - - - - - - - - - - - - - - - - - - - - - -
+
 // SUITE DEFINITION
 
 Suite* LDSC_linkedList_suite() {
@@ -870,6 +919,10 @@ Suite* LDSC_linkedList_suite() {
   tcase_add_test(tc_remove, linkedList_length_index_remove);
   tcase_add_test(tc_remove, linkedList_remove);
   suite_add_tcase(s, tc_remove);
+
+  TCase* tc_integration = tcase_create("integration");
+  tcase_add_test(tc_integration, linkedList_integration);
+  suite_add_tcase(s, tc_integration);
 
   return s;
 }
