@@ -70,6 +70,7 @@ void* LDSC_stack_pop(LDSC_stack* stackIn) {
   free(stackIn->top);
   stackIn->top = newTop;
 
+  stackIn->length--;
   return dataOutPtr;
 }
 
