@@ -1,7 +1,6 @@
 #include <LDSC_linkedList.h>
 #include <stdlib.h>
 
-// node definition
 typedef struct LDSC_node {
   void* dataPtr;
   struct LDSC_node* next;
@@ -15,14 +14,12 @@ static LDSC_node* LDSC_node_init(void* dataPtrIn) {
   return newNode;
 }
 
-// linked list definition
 struct LDSC_linkedList {
   int length;
   LDSC_node* head;
   LDSC_node* tail;
 };
 
-// create and return a new linked list
 LDSC_linkedList* LDSC_linkedList_init() {
   LDSC_linkedList* newLL = (LDSC_linkedList*)malloc(sizeof(LDSC_linkedList));
   newLL->length = 0;
@@ -42,22 +39,18 @@ static LDSC_node* LDSC_linkedList_getNode(LDSC_linkedList* LLin, int index) {
   return returnNode; 
 }
 
-// reutrn length of the list
 int LDSC_linkedList_length(LDSC_linkedList* LLin) {return LLin->length;}
 
-// return data ptr at head
 void* LDSC_linkedList_head(LDSC_linkedList* LLin) {
   if (!LLin->head) return NULL;
   return LLin->head->dataPtr;
 }
 
-// return data ptr at tail 
 void* LDSC_linkedList_tail(LDSC_linkedList* LLin) {
   if (!LLin->tail) return NULL;
   return LLin->tail->dataPtr;
 }
 
-// add item to end of the list
 void LDSC_linkedList_append(LDSC_linkedList* LLin, void* dataPtrIn) {
   if (!LLin || !dataPtrIn) return;
 
@@ -74,7 +67,6 @@ void LDSC_linkedList_append(LDSC_linkedList* LLin, void* dataPtrIn) {
   return;
 }
 
-// add item to fron of the list
 void LDSC_linkedList_prepend(LDSC_linkedList* LLin, void* dataPtrIn) {
   if (!LLin || !dataPtrIn) return;
 
@@ -89,7 +81,6 @@ void LDSC_linkedList_prepend(LDSC_linkedList* LLin, void* dataPtrIn) {
   return;
 }
 
-// return data ptr at index
 void* LDSC_linkedList_get(LDSC_linkedList* LLin, int index) {
   if (!LLin || index < 0 || index >= LLin->length) return NULL;
   
@@ -100,7 +91,6 @@ void* LDSC_linkedList_get(LDSC_linkedList* LLin, int index) {
   return targetNode->dataPtr;
 }
 
-// insert item at index
 void LDSC_linkedList_insert(LDSC_linkedList* LLin, void* dataPtrIn, int index) {
   if (!LLin || !dataPtrIn || index < 0 || index > LLin->length) return;
 
@@ -116,7 +106,6 @@ void LDSC_linkedList_insert(LDSC_linkedList* LLin, void* dataPtrIn, int index) {
   return;
 }
 
-// remove first item of the list
 void* LDSC_linkedList_removeFirst(LDSC_linkedList* LLin) {
   if (!LLin || !LLin->length) return NULL;
 
@@ -132,7 +121,6 @@ void* LDSC_linkedList_removeFirst(LDSC_linkedList* LLin) {
   return firstDataPtr;
 }
 
-// remove last item of the list
 void* LDSC_linkedList_removeLast(LDSC_linkedList* LLin) {
   if (!LLin || !LLin->length) return NULL;
 
@@ -148,7 +136,6 @@ void* LDSC_linkedList_removeLast(LDSC_linkedList* LLin) {
   return lastDataPtr;
 }
 
-// remove item at index
 void* LDSC_linkedList_remove(LDSC_linkedList* LLin, int index) {
   if (!LLin || !LLin->length || index < 0 || index >= LLin->length) return NULL;
 
