@@ -1,7 +1,6 @@
 #include <LDSC_queue.h>
 #include <stdlib.h>
 
-// node definition
 typedef struct LDSC_node {
   void* dataPtr;
   struct LDSC_node* next;
@@ -15,14 +14,16 @@ static LDSC_node* LDSC_node_init(void* dataPtrIn) {
   return newNode;
 }
 
-// queue definition
 struct LDSC_queue {
   int length;
   LDSC_node* head;
   LDSC_node* tail;
 };
 
-// create and return a new queue
+/**
+ * @brief Create a new queue
+ * @return Pointer to a new queue
+ */
 LDSC_queue* LDSC_queue_init() {
   LDSC_queue* newQueue = (LDSC_queue*)malloc(sizeof(LDSC_queue));
   newQueue->length = 0;
@@ -31,13 +32,21 @@ LDSC_queue* LDSC_queue_init() {
   return newQueue;
 }
 
-// return length of the queue
+/**
+ * @brief Return length of the queue
+ * @param queueIn Pointer to LDSC_queue
+ * @return Integer representing number of items in the queue
+ */
 int LDSC_queue_length(LDSC_queue* queueIn) {
   if (!queueIn) return -1;
   return queueIn->length;
 }
 
-// add item to the back of the queue
+/**
+ * @brief Enqueue item to queue
+ * @param queueIn Pointer to LDSC_queue
+ * @param dataPtr Pointer of data to store
+ */
 void LDSC_queue_enqueue(LDSC_queue* queueIn, void* dataPtrIn) {
   if (!queueIn || !dataPtrIn) return;
   LDSC_node* newNode = LDSC_node_init(dataPtrIn);
@@ -53,7 +62,11 @@ void LDSC_queue_enqueue(LDSC_queue* queueIn, void* dataPtrIn) {
   return;
 }
 
-// remove and return item at the front of the queue
+/**
+ * @brief Dequeue item from queue
+ * @param queueIn Pointer to LDSC_queue
+ * @return Pointer to item at front of the queue
+ */
 void* LDSC_queue_dequeue(LDSC_queue* queueIn) {
   if (!queueIn || !queueIn->length) return NULL;
 
@@ -69,7 +82,11 @@ void* LDSC_queue_dequeue(LDSC_queue* queueIn) {
   return dataPtrOut;
 }
 
-// return item at the front of the queue
+/**
+ * @brief Get item at front of the queue
+ * @param queueIn Pointer to LDSC_queue
+ * @return Pointer to data stored at the front of the queue
+ */
 void* LDSC_queue_peek(LDSC_queue* queueIn) {
   if (!queueIn || !queueIn->head) return NULL;
   return queueIn->head->dataPtr;

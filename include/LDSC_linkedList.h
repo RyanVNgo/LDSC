@@ -55,9 +55,10 @@ void* LDSC_linkedList_get(LDSC_linkedList* LLin, int index);
 /**
  * @brief Insert data at index
  * @param LLin Pointer to LDSC_linkedList
+ * @param dataPtr Pointer of data to store
  * @param index Index to inset at
  */
-void LDSC_linkedList_insert(LDSC_linkedList*, void* LLin, int index);
+void LDSC_linkedList_insert(LDSC_linkedList* LLin, void* dataPtr, int index);
 
 /**
  * @brief Remove first item of the list

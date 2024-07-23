@@ -20,14 +20,6 @@ struct LDSC_linkedList {
   LDSC_node* tail;
 };
 
-LDSC_linkedList* LDSC_linkedList_init() {
-  LDSC_linkedList* newLL = (LDSC_linkedList*)malloc(sizeof(LDSC_linkedList));
-  newLL->length = 0;
-  newLL->head = NULL;
-  newLL->tail = NULL;
-  return newLL;
-}
-
 // return ptr of node at index
 static LDSC_node* LDSC_linkedList_getNode(LDSC_linkedList* LLin, int index) {
   if (index < 0 || index >= LLin->length) return NULL;
@@ -39,18 +31,50 @@ static LDSC_node* LDSC_linkedList_getNode(LDSC_linkedList* LLin, int index) {
   return returnNode; 
 }
 
+/**
+ * @brief Create a new linked list
+ * @return Pointer to a new linked list
+ */
+LDSC_linkedList* LDSC_linkedList_init() {
+  LDSC_linkedList* newLL = (LDSC_linkedList*)malloc(sizeof(LDSC_linkedList));
+  newLL->length = 0;
+  newLL->head = NULL;
+  newLL->tail = NULL;
+  return newLL;
+}
+
+/**
+ * @brief Return length of the list
+ * @param LLin Pointer to LDSC_linkedList
+ * @return Integer representing number of items in the list
+ */
 int LDSC_linkedList_length(LDSC_linkedList* LLin) {return LLin->length;}
 
+/**
+ * @brief Get data at head
+ * @param LLin Pointer to LDSC_linkedList
+ * @return Pointer to data stored at head
+ */
 void* LDSC_linkedList_head(LDSC_linkedList* LLin) {
   if (!LLin->head) return NULL;
   return LLin->head->dataPtr;
 }
 
+/**
+ * @brief Get data at tail
+ * @param LLin Pointer to LDSC_linkedList
+ * @return Pointer to data stored at tail
+ */
 void* LDSC_linkedList_tail(LDSC_linkedList* LLin) {
   if (!LLin->tail) return NULL;
   return LLin->tail->dataPtr;
 }
 
+/**
+ * @brief Append item to list
+ * @param LLin Pointer to LDSC_linkedList
+ * @param dataPtr Pointer of data to store
+ */
 void LDSC_linkedList_append(LDSC_linkedList* LLin, void* dataPtrIn) {
   if (!LLin || !dataPtrIn) return;
 
@@ -67,6 +91,11 @@ void LDSC_linkedList_append(LDSC_linkedList* LLin, void* dataPtrIn) {
   return;
 }
 
+/**
+ * @brief Prepend item to list
+ * @param LLin Pointer to LDSC_linkedList
+ * @param dataPtr Pointer of data to store
+ */
 void LDSC_linkedList_prepend(LDSC_linkedList* LLin, void* dataPtrIn) {
   if (!LLin || !dataPtrIn) return;
 
@@ -81,6 +110,12 @@ void LDSC_linkedList_prepend(LDSC_linkedList* LLin, void* dataPtrIn) {
   return;
 }
 
+/**
+ * @brief Return data at index
+ * @param LLin Pointer to LDSC_linkedList
+ * @param index Index of node to return data from 
+ * @return Pointer to data stored as index
+ */
 void* LDSC_linkedList_get(LDSC_linkedList* LLin, int index) {
   if (!LLin || index < 0 || index >= LLin->length) return NULL;
   
@@ -91,6 +126,12 @@ void* LDSC_linkedList_get(LDSC_linkedList* LLin, int index) {
   return targetNode->dataPtr;
 }
 
+/**
+ * @brief Insert data at index
+ * @param LLin Pointer to LDSC_linkedList
+ * @param dataPtr Pointer of data to store
+ * @param index Index to inset at
+ */
 void LDSC_linkedList_insert(LDSC_linkedList* LLin, void* dataPtrIn, int index) {
   if (!LLin || !dataPtrIn || index < 0 || index > LLin->length) return;
 
@@ -106,6 +147,10 @@ void LDSC_linkedList_insert(LDSC_linkedList* LLin, void* dataPtrIn, int index) {
   return;
 }
 
+/**
+ * @brief Remove first item of the list
+ * @param LLin Pointer to LDSC_linkedList
+ */
 void* LDSC_linkedList_removeFirst(LDSC_linkedList* LLin) {
   if (!LLin || !LLin->length) return NULL;
 
@@ -121,6 +166,10 @@ void* LDSC_linkedList_removeFirst(LDSC_linkedList* LLin) {
   return firstDataPtr;
 }
 
+/**
+ * @brief Remove last item of the lst
+ * @param LLin Pointer to LDSC_linkedlist
+ */
 void* LDSC_linkedList_removeLast(LDSC_linkedList* LLin) {
   if (!LLin || !LLin->length) return NULL;
 
@@ -136,6 +185,11 @@ void* LDSC_linkedList_removeLast(LDSC_linkedList* LLin) {
   return lastDataPtr;
 }
 
+/**
+ * @brief Remove data at index
+ * @param LLin Pointer to LDSC_linkedList
+ * @param index Index of data to remove
+ */
 void* LDSC_linkedList_remove(LDSC_linkedList* LLin, int index) {
   if (!LLin || !LLin->length || index < 0 || index >= LLin->length) return NULL;
 
