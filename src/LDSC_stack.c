@@ -1,7 +1,6 @@
 #include <LDSC_stack.h>
 #include <stdlib.h>
 
-// node definition
 typedef struct LDSC_node {
   void* dataPtr;
   struct LDSC_node* next;
@@ -15,13 +14,15 @@ static LDSC_node* LDSC_node_init(void* dataPtrIn) {
   return newNode;
 }
 
-// stack definition
 struct LDSC_stack {
   int length;
   LDSC_node* top;
 };
 
-// create and return a new stack
+/**
+ * @brief Create a new stack
+ * @return Pointer to a new stack
+ */
 LDSC_stack* LDSC_stack_init() {
   LDSC_stack* newStack = (LDSC_stack*)malloc(sizeof(LDSC_stack));
   newStack->length = 0;
@@ -29,20 +30,31 @@ LDSC_stack* LDSC_stack_init() {
   return newStack;
 }
 
-// return length of the stack
+/**
+ * @brief Get the length of the stack
+ * @param stackIn Pointer to LDSC_stack
+ * @return Integer representing number of items in the stack
+ */
 int LDSC_stack_length(LDSC_stack* stackIn) {
   if (!stackIn) return -1;
   return stackIn->length;
 }
 
-// check if the stack is empty
+/**
+ * @brief Check if stack is empty
+ * @param stackIn Pointer to LDSC_stack
+ * @return Integer where empty = 1, non-empty = 0, fail = -1
+ */
 int LDSC_stack_isEmpty(LDSC_stack* stackIn) {
   if(!stackIn) return -1;
   if (!stackIn->length) return 1;
   return 0;
 }
-
-// push new data to the stack
+/**
+ * @brief Push new item to the stack
+ * @param stackIn Pointer to LDSC_stack
+ * @param dataPtr Pointer of data to store
+ */
 void LDSC_stack_push(LDSC_stack* stackIn, void* dataPtrIn) {
   if (!stackIn || !dataPtrIn) return;
 
@@ -54,13 +66,21 @@ void LDSC_stack_push(LDSC_stack* stackIn, void* dataPtrIn) {
   return;
 }
 
-// return data on top of the stack
+/**
+ * @brief Get item on top of stack
+ * @param stackIn Pointer to LDSC_stack
+ * @return Pointer to data stored at top
+ */
 void* LDSC_stack_peek(LDSC_stack* stackIn) {
   if (!stackIn || !stackIn->top) return NULL;
   return stackIn->top->dataPtr;
 }
 
-// remove and return data on top of the stack
+/**
+ * @brief Remove and return item on top of stack
+ * @param stackIn Pointer to LDSC_stack
+ * @return Pointer to data stored at top
+ */
 void* LDSC_stack_pop(LDSC_stack* stackIn) {
   if (!stackIn || !stackIn->top) return NULL;
   
