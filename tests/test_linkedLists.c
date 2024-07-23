@@ -1,6 +1,5 @@
 #include <stdlib.h>
 
-#include "LDSC_linkedList.h"
 #include "test_linkedLists.h"
 #include <LDSC.h>
 #include <check.h>
