@@ -37,12 +37,6 @@ int main() {
   numberFailed = srunner_ntests_failed(sr);
   srunner_free(sr);
 
-  LDSC_stack* myStack = LDSC_stack_init();
-  printf("myStack->getLength Ptr: %p\n", &myStack->getLength);
-
-  LDSC_stack* myOtherStack = LDSC_stack_init();
-  printf("myOtherStack->getLength Ptr: %p\n", &myOtherStack->getLength);
-
   printf("\n");
   return (numberFailed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
