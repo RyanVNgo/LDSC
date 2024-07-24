@@ -1,44 +1,107 @@
 #include <LDSC_stack.h>
 #include <stdlib.h>
 
-typedef struct LDSC_node {
+typedef struct Node {
   void* dataPtr;
-  struct LDSC_node* next;
-} LDSC_node;
+  struct Node* next;
+} Node;
 
-/** create and return a new stack node
-static LDSC_node* LDSC_node_init(void* dataPtrIn) {
-  LDSC_node* newNode = (LDSC_node*)malloc(sizeof(LDSC_node));
-  newNode->dataPtr = dataPtrIn;
+/** create and return a new stack node */
+static Node* Node_init(void* dataPtr) {
+  Node* newNode = (Node*)malloc(sizeof(Node));
+  newNode->dataPtr = dataPtr;
   newNode->next = NULL;
   return newNode;
 }
-*/
 
 struct stackPrivate {
-  int length;
-  LDSC_node* top;
+  int size;
+  Node* top;
 };
 
-int LDSC_stack_length(LDSC_stack* self) {
-  return ((LDSC_stack*)(self))->pd->length;
+/**
+  * @brief Get size of the stack.
+  * @param self Stack pointer.
+  * @return Size of the stack as integer type.
+  */
+int LDSC_stack_size(LDSC_stack* self) {
+  if (!self) return -1;
+  return self->pd->size;
 }
 
+/**
+  * @brief Peek item at the top of the stack.
+  * @param self Stack pointer.
+  * @return Pointer to data at the top of the stack.
+  */
 void* LDSC_stack_peek(LDSC_stack* self) {
   LDSC_stack* stack = (LDSC_stack*)self;
   if (!stack->pd->top) return NULL;
   return stack->pd->top->dataPtr;
 }
 
+/**
+  * @brief Pop an item from the stack.
+  * @param self Stack pointer.
+  * @return Pointer to data at the top of the stack.
+  */
+void* LDSC_stack_pop(LDSC_stack* self) {
+  if (!self || !self->pd->top) return NULL;
+  Node* oldTop = self->pd->top;
+  void* dataTop = oldTop->dataPtr;
+  self->pd->top = oldTop->next;
+  free(oldTop);
+  return dataTop;
+}
+
+/**
+  * @brief Push an item to the stack.
+  * @param self Stack pointer.
+  * @param dataPtr Pointer to data.
+  * @details
+  * Keep note that push performs a shallow copy of the data.
+  */
+void LDSC_stack_push(LDSC_stack* self, void* dataPtr) {
+  if (!self || !dataPtr) return;
+  Node* newNode = Node_init(dataPtr);
+  newNode->next = self->pd->top;
+  self->pd->top = newNode;
+  self->pd->size++;
+  return;
+}
+
+/**
+  * @brief Delete the stack.
+  * @param self Stack pointer.
+  */
+void LDSC_stack_delete(LDSC_stack* self) {
+  if (!self) return;
+  while (self->pd->top) {
+    self->pop(self);
+  }
+  free(self->pd);
+  free(self);
+  return;
+}
+
+/**
+ * @brief Create a new stack.
+ * @par Parameters
+ *  None.
+ * @return Pointer to an LDSC_stack.
+ */
 LDSC_stack* LDSC_stack_init() {
   LDSC_stack* newStack = malloc(sizeof(LDSC_stack));
 
   newStack->pd = malloc(sizeof(stackPrivate));
-  newStack->pd->length = 0;
+  newStack->pd->size = 0;
   newStack->pd->top = NULL;
 
-  newStack->getLength = &LDSC_stack_length;
+  newStack->size = &LDSC_stack_size;
   newStack->peek = &LDSC_stack_peek;
+  newStack->pop = &LDSC_stack_pop;
+  newStack->push = &LDSC_stack_push;
+  newStack->delete = &LDSC_stack_delete;
 
   return newStack;
 }
