@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "test_queue.h"
+#include "LDSC_queue.h"
 #include <LDSC.h>
 #include <check.h>
 
@@ -22,7 +23,7 @@ START_TEST(queue_init) {
 
 START_TEST(queue_length_null_queue) {
   // length should equal -1
-  int length = LDSC_stack_length(NULL);
+  int length = LDSC_queue_length(NULL);
   ck_assert_int_eq(length, -1);
 } END_TEST
 
