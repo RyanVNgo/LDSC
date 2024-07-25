@@ -5,248 +5,230 @@
 #include <LDSC.h>
 #include <check.h>
 
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+/**************************************************/
 
-// TEST CASE CORE START
+/* TEST CASE CORE START */
 
-START_TEST(queue_init) {
-  // myQueue should be nonnull
+START_TEST(initialization) {
+  typedef struct stackPrivate {
+    int size;
+    void* front;
+    void* back;
+  } stackPrivate;
+
   LDSC_queue* myQueue = LDSC_queue_init();
   ck_assert_ptr_nonnull(myQueue);
+
+  stackPrivate* pd = (stackPrivate*)myQueue->pd;
+  ck_assert_int_eq(pd->size, 0);
+  ck_assert_ptr_null(pd->front);
+  ck_assert_ptr_null(pd->back);
+
+  myQueue->delete(myQueue);
 } END_TEST
 
-// TEST CASE CORE END
+/* TEST CASE CORE END */
 
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+/**************************************************/
 
-// TEST CASE LENGTH START
+/* TEST CASE EMPTY START */
 
-START_TEST(queue_length_null_queue) {
-  // length should equal -1
-  int length = LDSC_queue_length(NULL);
+START_TEST(empty_invalid_params) {
+  LDSC_queue* myQueue = LDSC_queue_init();
+  int empty = myQueue->empty(NULL);
+  ck_assert_int_eq(empty, -1);
+  myQueue->delete(myQueue);
+} END_TEST
+
+START_TEST(empty) {
+  LDSC_queue* myQueue = LDSC_queue_init();
+  int empty = myQueue->empty(myQueue);
+  ck_assert_int_eq(empty, 1);
+  myQueue->delete(myQueue);
+} END_TEST
+
+/* TEST CASE EMPTY END */
+
+/**************************************************/
+
+/* TEST CASE LENGTH START */
+
+START_TEST(length_invalid_params) {
+  LDSC_queue* myQueue = LDSC_queue_init();
+  int length = myQueue->length(NULL);
   ck_assert_int_eq(length, -1);
+  myQueue->delete(myQueue);
 } END_TEST
 
-START_TEST(queue_length_empty_queue) {
+START_TEST(length) {
   LDSC_queue* myQueue = LDSC_queue_init();
-
-  // length should return 0 for an empty stack
-  int length = LDSC_queue_length(myQueue);
+  int length = myQueue->length(myQueue);
   ck_assert_int_eq(length, 0);
-
-  free(myQueue);
+  myQueue->delete(myQueue);
 } END_TEST
 
-// TEST CASE LENGTH START
+/* TEST CASE LENGTH START */
 
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+/**************************************************/
 
-// TEST CASE ENQUEUE START
+/* TEST CASE ENQUEUE START */
 
-START_TEST(queue_enqueue_null_queue) {
-  // should return with no error
+START_TEST(enqueue_invalid_params) {
+  LDSC_queue* myQueue = LDSC_queue_init();
   int testData = 17;
-  LDSC_queue_enqueue(NULL, &testData);
+  myQueue->enqueue(NULL, NULL);
+  myQueue->enqueue(myQueue, NULL);
+  myQueue->enqueue(NULL, &testData);
+  int empty = myQueue->empty(myQueue);
+  ck_assert_int_eq(empty, 1);
+  myQueue->delete(myQueue);
 } END_TEST
 
-START_TEST(queue_enqueue_null_data) {
+START_TEST(enqueue) {
   LDSC_queue* myQueue = LDSC_queue_init();
-  LDSC_queue_enqueue(myQueue, NULL);
+  int testData[] = {17, 9, 19};
+  for (int i = 0; i < 3; i++)
+    myQueue->enqueue(myQueue, &testData[i]);
 
-  // queue should remain empty (length of 0)
-  int length = LDSC_queue_length(myQueue);
+  int empty = myQueue->empty(myQueue);
+  int length = myQueue->length(myQueue);
+  ck_assert_int_eq(empty, 0);
+  ck_assert_int_eq(length, 3);
+
+  myQueue->delete(myQueue);
+} END_TEST
+
+/* TEST CASE ENQUEUE END */
+
+/**************************************************/
+
+/* TEST CASE DEQUEUE START */
+
+START_TEST(dequeue_invalid_params) {
+  LDSC_queue* myQueue = LDSC_queue_init();
+  void* dataPtr = myQueue->dequeue(NULL);
+  int length = myQueue->length(myQueue);
+  ck_assert_ptr_null(dataPtr);
+  ck_assert_int_eq(length, 0);
+  myQueue->delete(myQueue);
+} END_TEST
+
+START_TEST(dequeue) {
+  LDSC_queue* myQueue = LDSC_queue_init();
+
+  void* dataPtr = myQueue->dequeue(myQueue);
+  int length = myQueue->length(myQueue);
+  ck_assert_ptr_null(dataPtr);
   ck_assert_int_eq(length, 0);
 
-  free(myQueue);
+  int testData = 17;
+  myQueue->enqueue(myQueue, &testData);
+  dataPtr = myQueue->dequeue(myQueue);
+  ck_assert_ptr_nonnull(dataPtr);
+  ck_assert_int_eq(*(int*)dataPtr, testData);
+
+  myQueue->delete(myQueue);
 } END_TEST
 
-START_TEST(queue_enqueue) {
+/* TEST CASE DEQUEUE END */
+
+/**************************************************/
+
+/* TEST CASE PEEK START */
+
+START_TEST(peek_invalid_params) {
+  LDSC_queue* myQueue = LDSC_queue_init();
+  void* dataPtr = myQueue->peek(NULL);
+  ck_assert_ptr_null(dataPtr);
+  myQueue->delete(myQueue);
+} END_TEST
+
+START_TEST(peek) {
   LDSC_queue* myQueue = LDSC_queue_init();
 
-  // fill queue
-  int testDataLength = 3;
+  void* dataPtr = myQueue->peek(myQueue);
+  ck_assert_ptr_null(dataPtr);
+
+  int testData = 17;
+  myQueue->enqueue(myQueue, &testData);
+
+  dataPtr = myQueue->peek(myQueue);
+  ck_assert_ptr_nonnull(dataPtr);
+  ck_assert_int_eq(*(int*)dataPtr, testData);
+
+  myQueue->delete(myQueue);
+} END_TEST
+
+/* TEST CASE PEEK END */
+
+/**************************************************/
+
+/* TEST CASE INTEGRATION START */
+
+START_TEST(integration) {
+  LDSC_queue* myQueue = LDSC_queue_init();
+
+  int empty = myQueue->empty(myQueue);
+  ck_assert_int_eq(empty, 1);
+
+  int i;
   int testData[] = {17, 9, 19};
-  for (int i = 0; i < testDataLength; i++)
-    LDSC_queue_enqueue(myQueue, &testData[i]);
+  for (i = 0; i < 3; i++)
+    myQueue->enqueue(myQueue, &testData[i]);
 
-  // length of queue should equal testDataLength
-  int length = LDSC_queue_length(myQueue);
-  ck_assert_int_eq(length, testDataLength);
-  
-  free(myQueue);
-} END_TEST
+  void* dataPtr;
 
-// TEST CASE ENQUEUE END
-
-// - - - - - - - - - - - - - - - - - - - - - - - - -
-
-// TEST CASE DEQUEUE START
-
-START_TEST(queue_dequeue_null_queue) {
-  // should return NULL for NULL queue
-  void* dataOutPtr = LDSC_queue_dequeue(NULL);
-  ck_assert_ptr_null(dataOutPtr);
-} END_TEST
-
-START_TEST(queue_dequeue_empty_queue) {
-  LDSC_queue* myQueue = LDSC_queue_init();
-
-  // should return NULL for empty queue
-  void* dataOutPtr = LDSC_queue_dequeue(myQueue);
-  ck_assert_ptr_null(dataOutPtr);
-
-  free(myQueue);
-} END_TEST
-
-START_TEST(queue_dequeue) {
-  LDSC_queue* myQueue = LDSC_queue_init();
-
-  // fill queue
-  int testDataLength = 3;
-  int testData[] = {17, 9, 19};
-  for (int i = 0; i < testDataLength; i++)
-    LDSC_queue_enqueue(myQueue, &testData[i]);
-
-  // should return nonnull ptr and equal to first item of testData
-  void* dataOutPtr = LDSC_queue_dequeue(myQueue);
-  ck_assert_ptr_nonnull(dataOutPtr);
-  ck_assert_int_eq(*(int*)dataOutPtr, testData[0]);
-
-  // length should return 1 less than testDataLength
-  int length = LDSC_queue_length(myQueue);
-  ck_assert_int_eq(length, testDataLength - 1);
-
-  free(myQueue);
-} END_TEST
-
-// TEST CASE DEQUEUE END
-
-// - - - - - - - - - - - - - - - - - - - - - - - - -
-
-// TEST CASE PEEK START
-
-START_TEST(queue_peek_null_queue) {
-  // shoud return NULL for NULL queue
-  void* dataOutPtr = LDSC_queue_peek(NULL);
-  ck_assert_ptr_null(dataOutPtr);
-} END_TEST
-
-START_TEST(queue_peek_empty_queue) {
-  LDSC_queue* myQueue = LDSC_queue_init();
-
-  // should return NULL for empty queue
-  void* dataOutPtr = LDSC_queue_peek(myQueue);
-  ck_assert_ptr_null(dataOutPtr);
-
-  free(myQueue);
-} END_TEST
-
-START_TEST(queue_peek) {
-  LDSC_queue* myQueue = LDSC_queue_init();
-
-  // fill queue
-  int testDataLength = 3;
-  int testData[] = {17, 9, 19};
-  for (int i = 0; i < testDataLength; i++)
-    LDSC_queue_enqueue(myQueue, &testData[i]);
-
-  // should return nonnull ptr and equal to first item of testData
-  void* dataOutPtr = LDSC_queue_peek(myQueue);
-  ck_assert_ptr_nonnull(dataOutPtr);
-  ck_assert_int_eq(*(int*)dataOutPtr, testData[0]);
-
-  // length should equal testDataLength
-  int length = LDSC_queue_length(myQueue);
-  ck_assert_int_eq(length, testDataLength);
-
-  free(myQueue);
-} END_TEST
-
-// TEST CASE PEEK END
-
-// - - - - - - - - - - - - - - - - - - - - - - - - -
-
-// TEST CASE INTEGRATION START
-
-START_TEST(queue_integration) {
-  LDSC_queue* myQueue = LDSC_queue_init();
-
-  // fill queue
-  void* dataOutPtr;
-  int trackedLength = 0;
-  int trackedHeadIndex = 0;
-
-  int testDataLength = 3;
-  int testData[] = {17, 9, 19};
-  for (int i = 0; i < testDataLength; i++) {
-    LDSC_queue_enqueue(myQueue, &testData[i]);
-    trackedLength++;
+  i = 0;
+  while (!myQueue->empty(myQueue)) {
+    dataPtr = myQueue->dequeue(myQueue);
+    ck_assert_int_eq(*(int*)dataPtr, testData[i]);
+    i++;
   }
 
-  int length = LDSC_queue_length(myQueue);
-  ck_assert_int_eq(length, trackedLength);
-
-  LDSC_queue_dequeue(myQueue);
-  trackedLength--; trackedHeadIndex++;
-  dataOutPtr = LDSC_queue_dequeue(myQueue);
-  trackedLength--; trackedHeadIndex++;
-
-  ck_assert_ptr_nonnull(dataOutPtr);
-  ck_assert_int_eq(*(int*)dataOutPtr, testData[trackedHeadIndex - 1]);
-
-  int testDataExtra = 21;
-  LDSC_queue_enqueue(myQueue, &testDataExtra);
-  trackedLength++;
-
-  dataOutPtr = LDSC_queue_peek(myQueue);
-  ck_assert_ptr_nonnull(dataOutPtr);
-  ck_assert_int_eq(*(int*)dataOutPtr, testData[trackedHeadIndex]);
-
-  length = LDSC_queue_length(myQueue);
-  ck_assert_int_eq(length, trackedLength);
-
-  free(myQueue);
+  myQueue->delete(myQueue);
 } END_TEST
 
-// TEST CASE INTEGRATION END
+/* TEST CASE INTEGRATION END */
 
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+/**************************************************/
 
-// SUITE DEFINITION
+/* SUITE DEFINITION */
 
 Suite* LDSC_queue_suite() {
   Suite *s;
   s = suite_create("LDSC_queue");
 
   TCase* tc_core = tcase_create("core");
-  tcase_add_test(tc_core, queue_init);
+  tcase_add_test(tc_core, initialization);
   suite_add_tcase(s, tc_core);
 
+  TCase* tc_empty = tcase_create("empty");
+  tcase_add_test(tc_empty, empty_invalid_params);
+  tcase_add_test(tc_empty, empty);
+  suite_add_tcase(s, tc_empty);
+
   TCase* tc_length = tcase_create("length");
-  tcase_add_test(tc_length, queue_length_null_queue);
-  tcase_add_test(tc_length, queue_length_empty_queue);
+  tcase_add_test(tc_length, length_invalid_params);
+  tcase_add_test(tc_length, length);
   suite_add_tcase(s, tc_length);
 
   TCase* tc_enqueue= tcase_create("enqueue");
-  tcase_add_test(tc_enqueue, queue_enqueue_null_queue);
-  tcase_add_test(tc_enqueue, queue_enqueue_null_data);
-  tcase_add_test(tc_enqueue, queue_enqueue);
+  tcase_add_test(tc_enqueue, enqueue_invalid_params);
+  tcase_add_test(tc_enqueue, enqueue);
   suite_add_tcase(s, tc_enqueue);
 
   TCase* tc_dequeue = tcase_create("dequeue");
-  tcase_add_test(tc_dequeue, queue_dequeue_null_queue);
-  tcase_add_test(tc_dequeue, queue_dequeue_empty_queue);
-  tcase_add_test(tc_dequeue, queue_dequeue);
+  tcase_add_test(tc_dequeue, dequeue_invalid_params);
+  tcase_add_test(tc_dequeue, dequeue);
   suite_add_tcase(s, tc_dequeue);
 
   TCase* tc_peek = tcase_create("peek");
-  tcase_add_test(tc_peek, queue_peek_null_queue);
-  tcase_add_test(tc_peek, queue_peek_empty_queue);
-  tcase_add_test(tc_peek, queue_peek);
+  tcase_add_test(tc_peek, peek_invalid_params);
+  tcase_add_test(tc_peek, peek);
   suite_add_tcase(s, tc_peek);
 
   TCase* tc_integration = tcase_create("integration");
-  tcase_add_test(tc_integration, queue_integration);
+  tcase_add_test(tc_integration, integration);
   suite_add_tcase(s, tc_integration);
 
   return s;

@@ -56,8 +56,6 @@ struct LDSC_stack {
 
 /**
  * @brief Create a new stack.
- * @par Parameters
- *  None.
  * @return Pointer to an LDSC_stack.
  */
 LDSC_stack* LDSC_stack_init();

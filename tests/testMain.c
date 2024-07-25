@@ -30,7 +30,7 @@ int main() {
 
   //srunner_add_suite(sr, LDSC_linkedList_suite());
   srunner_add_suite(sr, LDSC_stack_suite());
-  //srunner_add_suite(sr, LDSC_queue_suite());
+  srunner_add_suite(sr, LDSC_queue_suite());
 
   srunner_run_all(sr, CK_VERBOSE);
 
