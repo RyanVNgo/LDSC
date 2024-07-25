@@ -1,6 +1,7 @@
 #include <LDSC_stack.h>
 #include <stdlib.h>
 
+/** node structure */
 typedef struct Node {
   void* dataPtr;
   struct Node* next;
@@ -14,6 +15,9 @@ static Node* Node_init(void* dataPtr) {
   return newNode;
 }
 
+/**
+  * @brief Opaque container for private data.
+  */
 struct stackPrivate {
   int size;
   Node* top;
@@ -30,31 +34,6 @@ int LDSC_stack_size(LDSC_stack* self) {
 }
 
 /**
-  * @brief Peek item at the top of the stack.
-  * @param self Stack pointer.
-  * @return Pointer to data at the top of the stack.
-  */
-void* LDSC_stack_peek(LDSC_stack* self) {
-  LDSC_stack* stack = (LDSC_stack*)self;
-  if (!stack->pd->top) return NULL;
-  return stack->pd->top->dataPtr;
-}
-
-/**
-  * @brief Pop an item from the stack.
-  * @param self Stack pointer.
-  * @return Pointer to data at the top of the stack.
-  */
-void* LDSC_stack_pop(LDSC_stack* self) {
-  if (!self || !self->pd->top) return NULL;
-  Node* oldTop = self->pd->top;
-  void* dataTop = oldTop->dataPtr;
-  self->pd->top = oldTop->next;
-  free(oldTop);
-  return dataTop;
-}
-
-/**
   * @brief Push an item to the stack.
   * @param self Stack pointer.
   * @param dataPtr Pointer to data.
@@ -68,6 +47,41 @@ void LDSC_stack_push(LDSC_stack* self, void* dataPtr) {
   self->pd->top = newNode;
   self->pd->size++;
   return;
+}
+
+/**
+  * @brief Check if stack is empty.
+  * @param self Stack pointer.
+  * @return Integer where 1 = empty and 0 = not empty
+  */
+int LDSC_stack_isEmpty(LDSC_stack* self) {
+  if (!self) return -1;
+  return self->pd->size == 0;
+}
+
+/**
+  * @brief Peek item at the top of the stack.
+  * @param self Stack pointer.
+  * @return Pointer to data at the top of the stack.
+  */
+void* LDSC_stack_peek(LDSC_stack* self) {
+  if (!self || !self->pd->top) return NULL;
+  return self->pd->top->dataPtr;
+}
+
+/**
+  * @brief Pop an item from the stack.
+  * @param self Stack pointer.
+  * @return Pointer to data at the top of the stack.
+  */
+void* LDSC_stack_pop(LDSC_stack* self) {
+  if (!self || !self->pd->top) return NULL;
+  Node* oldTop = self->pd->top;
+  void* dataTop = oldTop->dataPtr;
+  self->pd->top = oldTop->next;
+  self->pd->size--;
+  free(oldTop);
+  return dataTop;
 }
 
 /**
@@ -98,9 +112,10 @@ LDSC_stack* LDSC_stack_init() {
   newStack->pd->top = NULL;
 
   newStack->size = &LDSC_stack_size;
+  newStack->push = &LDSC_stack_push;
+  newStack->isEmpty = &LDSC_stack_isEmpty;
   newStack->peek = &LDSC_stack_peek;
   newStack->pop = &LDSC_stack_pop;
-  newStack->push = &LDSC_stack_push;
   newStack->delete = &LDSC_stack_delete;
 
   return newStack;

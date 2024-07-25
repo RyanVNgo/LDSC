@@ -28,11 +28,11 @@ int main() {
   
   sr = srunner_create(sr_init());
 
-  srunner_add_suite(sr, LDSC_linkedList_suite());
+  //srunner_add_suite(sr, LDSC_linkedList_suite());
   srunner_add_suite(sr, LDSC_stack_suite());
-  srunner_add_suite(sr, LDSC_queue_suite());
+  //srunner_add_suite(sr, LDSC_queue_suite());
 
-  //srunner_run_all(sr, CK_VERBOSE);
+  srunner_run_all(sr, CK_VERBOSE);
 
   numberFailed = srunner_ntests_failed(sr);
   srunner_free(sr);
