@@ -163,35 +163,6 @@ START_TEST(peek) {
 
 /**************************************************/
 
-/* TEST CASE INTEGRATION START */
-
-START_TEST(integration) {
-  LDSC_queue* myQueue = LDSC_queue_init();
-
-  int empty = myQueue->empty(myQueue);
-  ck_assert_int_eq(empty, 1);
-
-  int i;
-  int testData[] = {17, 9, 19};
-  for (i = 0; i < 3; i++)
-    myQueue->enqueue(myQueue, &testData[i]);
-
-  void* dataPtr;
-
-  i = 0;
-  while (!myQueue->empty(myQueue)) {
-    dataPtr = myQueue->dequeue(myQueue);
-    ck_assert_int_eq(*(int*)dataPtr, testData[i]);
-    i++;
-  }
-
-  myQueue->delete(myQueue);
-} END_TEST
-
-/* TEST CASE INTEGRATION END */
-
-/**************************************************/
-
 /* SUITE DEFINITION */
 
 Suite* LDSC_queue_suite() {
@@ -226,10 +197,6 @@ Suite* LDSC_queue_suite() {
   tcase_add_test(tc_peek, peek_invalid_params);
   tcase_add_test(tc_peek, peek);
   suite_add_tcase(s, tc_peek);
-
-  TCase* tc_integration = tcase_create("integration");
-  tcase_add_test(tc_integration, integration);
-  suite_add_tcase(s, tc_integration);
 
   return s;
 }

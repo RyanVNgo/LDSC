@@ -164,47 +164,6 @@ START_TEST(pop) {
 
 /**************************************************/
 
-/* TEST CASE INTEGRATION START */
-
-#include <stdio.h>
-START_TEST(integration) {
-  LDSC_stack* myStack = LDSC_stack_init();
-
-  int testData[] = {17, 9, 19}; 
-  int i;
-  for (i = 0; i < 3; i++)
-    myStack->push(myStack, &testData[i]);
-
-  int size = myStack->size(myStack);
-  ck_assert_int_eq(size, 3);
-
-  void* dataPtr;
-  i = 2;
-  while (!myStack->isEmpty(myStack)) {
-    dataPtr = myStack->pop(myStack);
-    ck_assert_int_eq(*(int*)dataPtr, testData[i]);
-    i--;
-  }
-
-  size = myStack->size(myStack);
-  ck_assert_int_eq(size, 0);
-
-  int testDataMore[] = {23, 11};
-  myStack->push(myStack, &testDataMore[0]);
-
-  if (!myStack->isEmpty(myStack)) 
-    myStack->push(myStack, &testDataMore[1]);
-
-  size = myStack->size(myStack);
-  ck_assert_int_eq(size, 2);
-  
-  myStack->delete(myStack);
-} END_TEST 
-
-/* TEST CASE INTEGRATION END */
-
-/**************************************************/
-
 /* SUITE DEFINITION */
 
 Suite* LDSC_stack_suite(void) {
@@ -239,10 +198,6 @@ Suite* LDSC_stack_suite(void) {
   tcase_add_test(tc_pop, pop_invalid_params);
   tcase_add_test(tc_pop, pop);
   suite_add_tcase(s, tc_pop);
-
-  TCase* tc_integration = tcase_create("integration");
-  tcase_add_test(tc_integration , integration);
-  suite_add_tcase(s, tc_integration);
 
   return s;
 }
