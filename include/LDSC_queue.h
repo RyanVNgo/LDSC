@@ -2,7 +2,7 @@
 #define LDSC_QUEUE_H
 
 typedef struct LDSC_queue LDSC_queue;
-typedef struct stackPrivate stackPrivate;
+typedef struct privateData privateData;
 
 struct LDSC_queue {
   /**
@@ -51,12 +51,12 @@ struct LDSC_queue {
   /**
    * @brief Opaque container for private data.
    */
-  stackPrivate* pd;
+  privateData* pd;
 } ;
 
 /**
- * @brief Create a new queue
- * @return Pointer to a new queue
+ * @brief Create a new queue.
+ * @return Pointer to a LDSC_queue.
  */
 LDSC_queue* LDSC_queue_init();
 

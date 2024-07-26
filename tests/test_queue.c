@@ -10,16 +10,16 @@
 /* TEST CASE CORE START */
 
 START_TEST(initialization) {
-  typedef struct stackPrivate {
+  typedef struct privateData {
     int size;
     void* front;
     void* back;
-  } stackPrivate;
+  } privateData;
 
   LDSC_queue* myQueue = LDSC_queue_init();
   ck_assert_ptr_nonnull(myQueue);
 
-  stackPrivate* pd = (stackPrivate*)myQueue->pd;
+  privateData* pd = (privateData*)myQueue->pd;
   ck_assert_int_eq(pd->size, 0);
   ck_assert_ptr_null(pd->front);
   ck_assert_ptr_null(pd->back);

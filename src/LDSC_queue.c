@@ -18,7 +18,7 @@ static Node* Node_init(void* dataPtr) {
 /**
   * @brief Opaque container for private data.
   */
-struct stackPrivate {
+struct privateData {
   int length;
   Node* front;
   Node* back;
@@ -110,7 +110,7 @@ void LDSC_queue_delete(LDSC_queue* self) {
 LDSC_queue* LDSC_queue_init() {
   LDSC_queue* newQueue = malloc(sizeof(LDSC_queue));
 
-  newQueue->pd = malloc(sizeof(stackPrivate));
+  newQueue->pd = malloc(sizeof(privateData));
   newQueue->pd->length = 0;
   newQueue->pd->front = NULL;
   newQueue->pd->back = NULL;

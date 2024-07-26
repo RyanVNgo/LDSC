@@ -2,81 +2,110 @@
 #define LDSC_LINKEDLIST_H
 
 typedef struct LDSC_linkedList LDSC_linkedList;
+typedef struct privateData privateData;
+
+struct LDSC_linkedList {
+  /**
+   * @brief Get length of the linked list.
+   * @param self LDSC_linkedList pointer.
+   * @return Length of the linked list as integer type.
+   */
+  int (*length)(LDSC_linkedList* self);
+
+  /**
+   * @brief Check if linked list is empty.
+   * @param self LDSC_linkedList pointer.
+   * @return Integer where 1 = empty and 0 = not empty.
+   */
+  int (*empty)(LDSC_linkedList* self);
+
+  /**
+   * @brief Add item at the end of the linked list.
+   * @param self LDSC_linkedList pointer.
+   * @param dataPtr Pointer to data.
+   * @return Integer where 1 = success and 0 = failure.
+   * @details
+   * Keep note that append performs a shallow copy of the data.
+   */
+  int (*append)(LDSC_linkedList* self, void* dataPtr);
+
+  /**
+   * @brief Add item at the front of the linked list.
+   * @param self LDSC_linkedList pointer.
+   * @param dataPtr Pointer to data.
+   * @return Integer where 1 = success and 0 = failure.
+   * @details
+   * Keep note that prepend performs a shallow copy of the data.
+   */
+  int (*prepend)(LDSC_linkedList* self, void* dataPtr);
+
+  /**
+   * @brief Add item at index of the linked list.
+   * @param self LDSC_linkedList pointer.
+   * @param dataPtr Pointer to data.
+   * @param index Index to add item at.
+   * @return Integer where 1 = success and 0 = failure.
+   * @details
+   * Keep note that add performs a shallow copy of the data.
+   */
+  int (*add)(LDSC_linkedList* self, void* dataPtr, int index);
+
+  /**
+   * @brief Replace item at index.
+   * @param self LDSC_linkedList pointer.
+   * @param dataPtr Pointer to data.
+   * @param index Index of item to replace with dataPtr.
+   * @return Data pointer of item that was replaced.
+   * @details
+   * Keep note that replace performs a shallow copy of the data.
+   */
+  void* (*replace)(LDSC_linkedList* self, void* dataPtr, int index);
+
+  /**
+   * @brief Remove item at the front of the list.
+   * @param self LDSC_linkedList pointer.
+   * @return Data pointer of item that was removed.
+   */
+  void* (*pop)(LDSC_linkedList* self);
+
+  /**
+   * @brief Remove item at the end of the list.
+   * @param self LDSC_linkedList pointer.
+   * @return Data pointer of item that was removed.
+   */
+  void* (*pull)(LDSC_linkedList* self);
+
+  /**
+   * @brief Remove item at index.
+   * @param self LDSC_linkedList pointer.
+   * @param index Index of item to remove.
+   * @return Data pointer of item that was removed.
+   */
+  void* (*remove)(LDSC_linkedList* self, int index);
+
+  /**
+   * @brief Remove all items in the list.
+   * @param self LDSC_linkedList pointer.
+   */
+  void (*clear)(LDSC_linkedList* self);
+
+  /**
+   * @brief Delete the linked list
+   * @param self LDSC_ilnkedList pionter.
+   */
+  void (*delete)(LDSC_linkedList* self);
+
+  /**
+   * @brief Opaque container for private data.
+   */
+  privateData* pd;
+
+};
 
 /**
- * @brief Create a new linked list
- * @return Pointer to a new linked list
+ * @brief Create a new linked list.
+ * @return Pointer to a LDSC_linkedList.
  */
 LDSC_linkedList* LDSC_linkedList_init();
-
-/**
- * @brief Return length of the list
- * @param LLin Pointer to LDSC_linkedList
- * @return Integer representing numbe of items in the list
- */
-int LDSC_linkedList_length(LDSC_linkedList* LLin);
-
-/**
- * @brief Get data at head
- * @param LLin Pointer to LDSC_linkedList
- * @return Pointer to data stored at head
- */
-void* LDSC_linkedList_head(LDSC_linkedList* LLin);
-
-/**
- * @brief Get data at tail
- * @param LLin Pointer to LDSC_linkedList
- * @return Pointer to data stored at tail
- */
-void* LDSC_linkedList_tail(LDSC_linkedList* LLin);
-
-/**
- * @brief Append item to list
- * @param LLin Pointer to LDSC_linkedList
- * @param dataPtr Pointer of data to store
- */
-void LDSC_linkedList_append(LDSC_linkedList* LLin, void* dataPtr);
-
-/**
- * @brief Prepend item to list
- * @param LLin Pointer to LDSC_linkedList
- * @param dataPtr Pointer of data to store
- */
-void LDSC_linkedList_prepend(LDSC_linkedList* LLin, void* dataPtr);
-
-/**
- * @brief Return data at index
- * @param LLin Pointer to LDSC_linkedList
- * @param index Index of node to return data from 
- * @return Pointer to data stored as index
- */
-void* LDSC_linkedList_get(LDSC_linkedList* LLin, int index);
-
-/**
- * @brief Insert data at index
- * @param LLin Pointer to LDSC_linkedList
- * @param dataPtr Pointer of data to store
- * @param index Index to inset at
- */
-void LDSC_linkedList_insert(LDSC_linkedList* LLin, void* dataPtr, int index);
-
-/**
- * @brief Remove first item of the list
- * @param LLin Pointer to LDSC_linkedList
- */
-void* LDSC_linkedList_removeFirst(LDSC_linkedList* LLin);
-
-/**
- * @brief Remove last item of the lst
- * @param LLin Pointer to LDSC_linkedlist
- */
-void* LDSC_linkedList_removeLast(LDSC_linkedList* LLin);
-
-/**
- * @brief Remove data at index
- * @param LLin Pointer to LDSC_linkedList
- * @param index Index of data to remove
- */
-void* LDSC_linkedList_remove(LDSC_linkedList* LLin, int index);
 
 #endif

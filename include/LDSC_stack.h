@@ -2,7 +2,7 @@
 #define LDSC_STACK_H
 
 typedef struct LDSC_stack LDSC_stack;
-typedef struct stackPrivate stackPrivate;
+typedef struct privateData privateData;
 
 struct LDSC_stack {
   /**
@@ -51,7 +51,7 @@ struct LDSC_stack {
   /**
    * @brief Opaque container for private data.
    */
-  stackPrivate* pd;
+  privateData* pd;
 } ;
 
 /**

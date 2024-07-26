@@ -18,7 +18,7 @@ static Node* Node_init(void* dataPtr) {
 /**
   * @brief Opaque container for private data.
   */
-struct stackPrivate {
+struct privateData{
   int size;
   Node* top;
 };
@@ -107,7 +107,7 @@ void LDSC_stack_delete(LDSC_stack* self) {
 LDSC_stack* LDSC_stack_init() {
   LDSC_stack* newStack = malloc(sizeof(LDSC_stack));
 
-  newStack->pd = malloc(sizeof(stackPrivate));
+  newStack->pd = malloc(sizeof(privateData));
   newStack->pd->size = 0;
   newStack->pd->top = NULL;
 
