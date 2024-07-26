@@ -110,7 +110,7 @@ START_TEST(peek_invalid_params) {
   void* dataPtr = myStack->peek(NULL);
   ck_assert_ptr_null(dataPtr);
   myStack->delete(myStack);
-} END_TEST;
+} END_TEST
 
 START_TEST(peek) {
   LDSC_stack* myStack = LDSC_stack_init();
@@ -126,7 +126,7 @@ START_TEST(peek) {
   ck_assert_int_eq(*(int*)dataPtr, testData);
 
   myStack->delete(myStack);
-} END_TEST;
+} END_TEST
 
 /* TEST CASE PEEK END */
 

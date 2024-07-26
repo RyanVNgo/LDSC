@@ -132,6 +132,18 @@ int LDSC_linkedList_add(LDSC_linkedList* self, void* dataPtr, int index) {
 }
 
 /**
+  * @brief Get item at index.
+  * @param self LDSC_linkedList pointer.
+  * @param index Index of item to get.
+  * @return Data pointer of item at index.
+  */
+void* LDSC_linkedList_at(LDSC_linkedList* self, int index) {
+  if (!self || index < 0 || index >= self->pd->length) return NULL;
+  Node* targetNode = LDSC_linkedList_getNode(self, index);
+  return targetNode->dataPtr;
+}
+
+/**
   * @brief Replace item at index.
   * @param self LDSC_linkedList pointer.
   * @param dataPtr Pointer to data.
@@ -141,7 +153,7 @@ int LDSC_linkedList_add(LDSC_linkedList* self, void* dataPtr, int index) {
   * Keep note that replace performs a shallow copy of the data.
   */
 void* LDSC_linkedList_replace(LDSC_linkedList* self, void* dataPtr, int index) {
-  if (!self || !dataPtr || index <= 0 || index >= self->pd->length) return NULL;
+  if (!self || !dataPtr || index < 0 || index >= self->pd->length) return NULL;
   Node* targetNode = LDSC_linkedList_getNode(self, index);
 
   void* replacedDataPtr = targetNode->dataPtr;
@@ -264,13 +276,14 @@ LDSC_linkedList* LDSC_linkedList_init() {
 
   newLL->length = &LDSC_linkedList_length;
   newLL->empty = &LDSC_linkedList_empty;
-  newLL->add = &LDSC_linkedList_add;
   newLL->append = &LDSC_linkedList_append;
   newLL->prepend = &LDSC_linkedList_prepend;
+  newLL->add = &LDSC_linkedList_add;
+  newLL->at= &LDSC_linkedList_at;
   newLL->replace = &LDSC_linkedList_replace;
-  newLL->remove = &LDSC_linkedList_remove;
   newLL->pop = &LDSC_linkedList_pop;
   newLL->pull = &LDSC_linkedList_pull;
+  newLL->remove = &LDSC_linkedList_remove;
   newLL->clear = &LDSC_linkedList_clear;
   newLL->delete = &LDSC_linkedList_delete;
 

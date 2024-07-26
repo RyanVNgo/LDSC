@@ -51,6 +51,14 @@ struct LDSC_linkedList {
   int (*add)(LDSC_linkedList* self, void* dataPtr, int index);
 
   /**
+   * @brief Get item at index.
+   * @param self LDSC_linkedList pointer.
+   * @param index Index of item to get.
+   * @return Data pointer of item at index.
+   */
+  void* (*at)(LDSC_linkedList* self, int index);
+
+  /**
    * @brief Replace item at index.
    * @param self LDSC_linkedList pointer.
    * @param dataPtr Pointer to data.

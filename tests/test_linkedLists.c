@@ -112,10 +112,11 @@ START_TEST(append) {
   const int testDataSize = rand() % MAX_DATA_SET_SIZE;
   int testData[testDataSize];
 
-  for (int i = 0; i < testDataSize; i++)
+  int i = 0;
+  for (i = 0; i < testDataSize; i++)
     testData[i] = rand() % MAX_INT_VALUE;
 
-  for (int i = 0; i < testDataSize; i++)
+  for (i = 0; i < testDataSize; i++)
     if (myLL->append(myLL, &testData[i]) != SUCCESS) break;
 
   int length = myLL->length(myLL);
@@ -152,10 +153,11 @@ START_TEST(prepend) {
   const int testDataSize = rand() % MAX_DATA_SET_SIZE;
   int testData[testDataSize];
 
-  for (int i = 0; i < testDataSize; i++)
+  int i = 0;
+  for (i = 0; i < testDataSize; i++)
     testData[i] = rand() % MAX_INT_VALUE;
 
-  for (int i = 0; i < testDataSize; i++)
+  for (i = 0; i < testDataSize; i++)
     if (myLL->prepend(myLL, &testData[i]) != SUCCESS) break;
 
   int length = myLL->length(myLL);
@@ -195,15 +197,13 @@ START_TEST(add_invalid_params) {
   myLL->delete(myLL);
 } END_TEST
 
-#include <stdio.h>
 START_TEST(add) {
   LDSC_linkedList* myLL = LDSC_linkedList_init();
   const int testDataSize = rand() % MAX_DATA_SET_SIZE;
   int testData[testDataSize];
 
   for (int i = 0; i < testDataSize; i++)
-    testData[i] = 0;
-    //testData[i] = rand() % MAX_INT_VALUE;
+    testData[i] = rand() % MAX_INT_VALUE;
 
   int index = 0;
   int length;
@@ -220,6 +220,282 @@ START_TEST(add) {
 } END_TEST
 
 /* TEST CASE ADD END */
+
+/**************************************************/
+
+/* TEST CASE AT START */
+
+START_TEST(at_invalid_params) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  void* dataPtr = NULL;
+
+  dataPtr = myLL->at(NULL, 0);
+  ck_assert_ptr_null(dataPtr);
+
+  dataPtr = myLL->at(myLL, -1);
+  ck_assert_ptr_null(dataPtr);
+  
+  dataPtr = myLL->at(myLL, 0);
+  ck_assert_ptr_null(dataPtr);
+  
+  myLL->delete(myLL);
+} END_TEST
+
+START_TEST(at) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  const int testDataSize = rand() % MAX_DATA_SET_SIZE;
+  int testData[testDataSize];
+
+  int i = 0;
+  for (i = 0; i < testDataSize; i++)
+    testData[i] = rand() % MAX_INT_VALUE;
+
+  for (i = 0; i < testDataSize; i++)
+    myLL->append(myLL, &testData[i]);
+
+  void* dataPtr = NULL;
+  int index = 0;
+  int dataOut = 0;
+  for (i = 0; i < testDataSize; i++) {
+    dataPtr = myLL->at(myLL, index);
+    ck_assert_ptr_nonnull(dataPtr);
+
+    dataOut = *(int*)dataPtr;
+    ck_assert_int_eq(dataOut, testData[index]);
+  }
+
+  myLL->delete(myLL);
+} END_TEST
+
+/* TEST CASE AT END */
+
+/**************************************************/
+
+/* TEST CASE REPLACE START */
+
+START_TEST(replace_invalid_params) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  void* dataPtr = NULL;
+  int testData = 17;
+
+  dataPtr = myLL->replace(NULL, NULL, 0);
+  ck_assert_ptr_null(dataPtr);
+
+  dataPtr = myLL->replace(myLL, NULL, 0);
+  ck_assert_ptr_null(dataPtr);
+
+  dataPtr = myLL->replace(NULL, &testData, 0);
+  ck_assert_ptr_null(dataPtr);
+
+  dataPtr = myLL->replace(myLL, &testData, 0);
+  ck_assert_ptr_null(dataPtr);
+
+  myLL->delete(myLL);
+} END_TEST
+
+START_TEST(replace) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  const int testDataSize = rand() % MAX_DATA_SET_SIZE;
+  int testData[testDataSize];
+
+  int i = 0;
+  for (i = 0; i < testDataSize; i++)
+    testData[i] = rand() % MAX_INT_VALUE;
+
+  for (i = 0; i < testDataSize; i++)
+    myLL->append(myLL, &testData[i]);
+
+  void* dataPtr = NULL;
+  int dataOut = 0;
+  for (i = 0; i < testDataSize; i++) {
+    int newData = rand() % MAX_INT_VALUE;
+
+    dataPtr = myLL->replace(myLL, &newData, i);
+    ck_assert_ptr_nonnull(dataPtr);
+
+    dataOut = *(int*)dataPtr;
+    ck_assert_int_eq(dataOut, testData[i]);
+
+    dataPtr = myLL->at(myLL, i);
+    ck_assert_ptr_nonnull(dataPtr);
+    
+    dataOut = *(int*)dataPtr;
+    ck_assert_int_eq(dataOut, newData);
+  }
+
+  myLL->delete(myLL);
+} END_TEST
+
+/* TEST CASE REPLACE END */
+
+/**************************************************/
+
+/* TEST CASE POP START */
+
+START_TEST(pop_invalid_params) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  void* dataPtr = myLL->pop(NULL);
+  ck_assert_ptr_null(dataPtr);
+  myLL->delete(myLL);
+} END_TEST
+
+START_TEST(pop) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  const int testDataSize = rand() % MAX_DATA_SET_SIZE;
+  int testData[testDataSize];
+
+  int i = 0;
+  for (i = 0; i < testDataSize; i++)
+    testData[i] = rand() % MAX_INT_VALUE;
+
+  for (i = 0; i < testDataSize; i++)
+    myLL->append(myLL, &testData[i]);
+
+  void* dataPtr = NULL;
+  int dataOut = 0;
+  for (i = 0; i < testDataSize; i++) {
+    dataPtr = myLL->pop(myLL);
+    ck_assert_ptr_nonnull(dataPtr);
+
+    dataOut = *(int*)dataPtr;
+    ck_assert_int_eq(dataOut, testData[i]);
+  }
+
+  int empty = myLL->empty(myLL);
+  ck_assert_int_eq(empty, 1);
+
+  myLL->delete(myLL);
+} END_TEST
+
+/* TEST CASE POP END */
+
+/**************************************************/
+
+/* TEST CASE PULL START */
+
+START_TEST(pull_invalid_params) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  void* dataPtr = myLL->pull(NULL);
+  ck_assert_ptr_null(dataPtr);
+  myLL->delete(myLL);
+} END_TEST
+
+START_TEST(pull) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  const int testDataSize = rand() % MAX_DATA_SET_SIZE;
+  int testData[testDataSize];
+
+  int i = 0;
+  for (i = 0; i < testDataSize; i++)
+    testData[i] = rand() % MAX_INT_VALUE;
+
+  for (i = 0; i < testDataSize; i++)
+    myLL->prepend(myLL, &testData[i]);
+
+  void* dataPtr = NULL;
+  int dataOut = 0;
+  for (i = 0; i < testDataSize; i++) {
+    dataPtr = myLL->pull(myLL);
+    ck_assert_ptr_nonnull(dataPtr);
+
+    dataOut = *(int*)dataPtr;
+    ck_assert_int_eq(dataOut, testData[i]);
+  }
+
+  int empty = myLL->empty(myLL);
+  ck_assert_int_eq(empty, 1);
+
+  myLL->delete(myLL);
+} END_TEST
+
+/* TEST CASE PULL END */
+
+/**************************************************/
+
+/* TEST CASE REMOVE START */
+
+START_TEST(remove_invalid_params) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  void* dataPtr = NULL;
+
+  dataPtr = myLL->remove(NULL, 0);
+  ck_assert_ptr_null(dataPtr);
+
+  dataPtr = myLL->remove(myLL, 0);
+  ck_assert_ptr_null(dataPtr);
+
+  myLL->delete(myLL);
+} END_TEST
+
+START_TEST(remove) {
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  const int testDataSize = rand() % MAX_DATA_SET_SIZE;
+  int testData[testDataSize];
+
+  int i = 0;
+  for (i = 0; i < testDataSize; i++)
+    testData[i] = rand() % MAX_INT_VALUE;
+
+  for (i = 0; i < testDataSize; i++)
+    myLL->append(myLL, &testData[i]);
+
+  int index = 0;
+  void* dataPtr = NULL;
+  int initData = 0;
+  int dataOut = 0;;
+  for (i = 0; i < testDataSize; i++) {
+    index = rand() % myLL->length(myLL);
+    initData = *(int*)myLL->at(myLL, index);
+
+    dataPtr = myLL->remove(myLL, index);
+    ck_assert_ptr_nonnull(dataPtr);
+
+    dataOut = *(int*)dataPtr;
+    ck_assert_int_eq(dataOut, initData);
+  }
+
+  int empty = myLL->empty(myLL);
+  ck_assert_int_eq(empty, 1);
+
+  myLL->delete(myLL);
+} END_TEST
+
+/* TEST CASE REMOVE END */
+
+/**************************************************/
+
+/* TEST CASE CLEAR START */
+
+START_TEST(clear) {
+  typedef struct privateData {
+    int length;
+    void* head;
+    void* tail;
+  } privateData;
+  
+  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  const int testDataSize = rand() % MAX_DATA_SET_SIZE;
+  int testData[testDataSize];
+
+  int i = 0;
+  for (i = 0; i < testDataSize; i++)
+    testData[i] = rand() % MAX_INT_VALUE;
+
+  for (i = 0; i < testDataSize; i++)
+    myLL->append(myLL, &testData[i]);
+
+  myLL->clear(myLL);
+  int empty = myLL->empty(myLL);
+  ck_assert_int_eq(empty, 1);
+
+  privateData* pd = (privateData*)myLL->pd;
+  ck_assert_ptr_null(pd->head);
+  ck_assert_ptr_null(pd->tail);
+
+  myLL->delete(myLL);
+} END_TEST
+
+/* TEST CASE CLEAR END */
 
 /**************************************************/
 
@@ -259,6 +535,35 @@ Suite* LDSC_linkedList_suite() {
   tcase_add_test(tc_add, add_invalid_params);
   tcase_add_test(tc_add, add);
   suite_add_tcase(s, tc_add);
+
+  TCase* tc_at = tcase_create("at");
+  tcase_add_test(tc_at, at_invalid_params);
+  tcase_add_test(tc_at, at);
+  suite_add_tcase(s, tc_at);
+
+  TCase* tc_replace = tcase_create("replace");
+  tcase_add_test(tc_replace, replace_invalid_params);
+  tcase_add_test(tc_replace, replace);
+  suite_add_tcase(s, tc_replace);
+
+  TCase* tc_pop = tcase_create("pop");
+  tcase_add_test(tc_pop, pop_invalid_params);
+  tcase_add_test(tc_pop, pop);
+  suite_add_tcase(s, tc_pop);
+
+  TCase* tc_pull = tcase_create("pull");
+  tcase_add_test(tc_pull, pull_invalid_params);
+  tcase_add_test(tc_pull, pull);
+  suite_add_tcase(s, tc_pull);
+
+  TCase* tc_remove = tcase_create("remove");
+  tcase_add_test(tc_remove, remove_invalid_params);
+  tcase_add_test(tc_remove, remove);
+  suite_add_tcase(s, tc_remove);
+
+  TCase* tc_clear = tcase_create("clear");
+  tcase_add_test(tc_clear, clear);
+  suite_add_tcase(s, tc_clear );
 
   return s;
 }
