@@ -32,6 +32,9 @@ static Node* LDSC_linkedList_getNode(LDSC_linkedList* self, int index) {
   return currNode;
 }
 
+/**************************************************/
+/* LDSC_linkedList */
+
 /**
   * @brief Get length of the linked list.
   * @param self LDSC_linkedList pointer.
@@ -244,6 +247,8 @@ void LDSC_linkedList_delete(LDSC_linkedList* self) {
   free(self);
   return;
 }
+
+/**************************************************/
 
 /**
  * @brief Create a new linked list.
