@@ -1,2 +1,9 @@
+# object files
+src/*.o
+
+# for lsp usage
 .cache/
 *.json
+
+# for tests
+test_runner
