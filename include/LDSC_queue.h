@@ -2,39 +2,62 @@
 #define LDSC_QUEUE_H
 
 typedef struct LDSC_queue LDSC_queue;
+typedef struct privateData privateData;
+
+struct LDSC_queue {
+  /**
+   * @brief Check is queue is empty.
+   * @param self Queue pointer.
+   * @return Integer where 1 = empty and 0 = not empty.
+   */
+  int (*empty)(LDSC_queue* self);
+
+  /**
+   * @brief Get length of the queue.
+   * @param self Queue pointer.
+   * @return Length of the stack as integer type.
+   */
+  int (*length)(LDSC_queue* self);
+
+  /**
+   * @brief Add item to end of the queue.
+   * @param self Queue pointer.
+   * @param dataPtr Pointer to data.
+   * @details
+   * Keep note that enqueue performs a shallow copy of the data.
+   */
+  void (*enqueue)(LDSC_queue* self, void* dataPtr);
+
+  /**
+   * @brief Remove item from fron of the queue.
+   * @param self Queue pointer.
+   * @return Pointer to data at the front of the queue.
+   */
+  void* (*dequeue)(LDSC_queue* self);
+
+  /**
+   * @brief Peek item at the front of the queue.
+   * @param self Queue pointer.
+   * @return Pointer to data at the front of the queue.
+   */
+  void* (*peek)(LDSC_queue* self);
+
+  /**
+   * @brief Delete the queue.
+   * @param self Queue pointer.
+   */
+  void (*delete)(LDSC_queue* self);
+
+  /**
+   * @brief Opaque container for private data.
+   */
+  privateData* pd;
+} ;
 
 /**
- * @brief Create a new queue
- * @return Pointer to a new queue
+ * @brief Create a new queue.
+ * @return Pointer to a LDSC_queue.
  */
 LDSC_queue* LDSC_queue_init();
-
-/**
- * @brief Return length of the queue
- * @param queueIn Pointer to LDSC_queue
- * @return Integer representing number of items in the queue
- */
-int LDSC_queue_length(LDSC_queue* queueIn);
-
-/**
- * @brief Enqueue item to queue
- * @param queueIn Pointer to LDSC_queue
- * @param dataPtr Pointer of data to store
- */
-void LDSC_queue_enqueue(LDSC_queue* queueIn, void* dataPtr);
-
-/**
- * @brief Dequeue item from queue
- * @param queueIn Pointer to LDSC_queue
- * @return Pointer to item at front of the queue
- */
-void* LDSC_queue_dequeue(LDSC_queue* queueIn);
-
-/**
- * @brief Get item at front of the queue
- * @param queueIn Pointer to LDSC_queue
- * @return Pointer to data stored at the front of the queue
- */
-void* LDSC_queue_peek(LDSC_queue* queueIn);
 
 #endif

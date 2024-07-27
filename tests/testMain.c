@@ -4,6 +4,7 @@
 #include <check.h>
 #include <LDSC.h>
 
+#include "LDSC_stack.h"
 #include "test_linkedLists.h"
 #include "test_stack.h"
 #include "test_queue.h"

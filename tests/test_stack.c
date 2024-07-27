@@ -4,257 +4,200 @@
 #include <LDSC.h>
 #include <check.h>
 
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+/**************************************************/
 
-// TEST CASE CORE START
+/* TEST CASE CORE START */
 
-START_TEST(stack_core) {
-  LDSC_stack* myStack = LDSC_stack_init();
+START_TEST(initialization) {
+  typedef struct privateData {
+    int size;
+    void* top;
+  } privateData;
+
+  LDSC_stack* myStack = LDSC_stack_init();  
   ck_assert_ptr_nonnull(myStack);
+
+  privateData* pd = (privateData*)myStack->pd;
+  ck_assert_ptr_nonnull(pd);
+  ck_assert_int_eq(pd->size, 0);
+  ck_assert_ptr_null(pd->top);
+
+  myStack->delete(myStack);
 } END_TEST
 
-// TEST CASE CORE END
+/* TEST CASE CORE END */
 
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+/**************************************************/
 
-// TEST CASE LENGTH START
+/* TEST CASE SIZE START */
 
-START_TEST(stack_length_null_stack) {
-  // function should return -1 for error
-  int length = LDSC_stack_length(NULL);
-  ck_assert_int_eq(length, -1);
-} END_TEST
-
-START_TEST(stack_length) {
+START_TEST(size_invalid_params) {
   LDSC_stack* myStack = LDSC_stack_init();
-
-  // function should return 0 for an empty stack
-  int length = LDSC_stack_length(myStack);
-  ck_assert_int_eq(length, 0);
-
-  free(myStack);
+  int size = myStack->size(NULL);
+  ck_assert_int_eq(size, -1);
+  myStack->delete(myStack);
 }
 
-// TEST CASE LENGTH END
+START_TEST(size_empty_stack) {
+  LDSC_stack* myStack = LDSC_stack_init();
+  int size = myStack->size(myStack);
+  ck_assert_int_eq(size, 0);
+  myStack->delete(myStack);
+} END_TEST
 
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+/* TEST CASE SIZE END */
 
-// TEST CASE PUSH START
+/**************************************************/
 
-START_TEST(stack_push_null_stack) {
+/* TEST CASE PUSH START */
+
+START_TEST(push_invalid_params) {
+  LDSC_stack* myStack = LDSC_stack_init();
   int testData = 17;
-  LDSC_stack_push(NULL, (void*)&testData);
-} END_TEST
-
-START_TEST(stack_push_null_data) {
-  LDSC_stack* myStack = LDSC_stack_init();
-  
-  // attempt push
-  LDSC_stack_push(myStack, NULL);
-
-  // length of stack should be 0
-  int length = LDSC_stack_length(myStack);
-  ck_assert_int_eq(length, 0);
-
-  free(myStack);
-} END_TEST
-
-START_TEST(stack_push) {
-  int testDataLength = 3;
-  int testData[] = {17, 9, 19};
-  LDSC_stack* myStack = LDSC_stack_init();
-  for (int i = 0; i < testDataLength; i++)
-    LDSC_stack_push(myStack, &testData[i]);
-
-  // length of the stack should be equal to the number of item in testData
-  int length = LDSC_stack_length(myStack);
-  ck_assert_int_eq(length, testDataLength);
+  myStack->push(NULL, NULL);
+  myStack->push(myStack, NULL);
+  myStack->push(NULL, &testData);
+  int size = myStack->size(myStack);
+  ck_assert_int_eq(size, 0);
+  myStack->delete(myStack);
 }
 
-// TEST CASE PUSH END
-
-// - - - - - - - - - - - - - - - - - - - - - - - - -
-
-// TEST CASE ISEMPTY START
-
-START_TEST(stack_isEmpty_null_stack) {
-  // function should return -1 for error
-  int isEmpty = LDSC_stack_length(NULL);
-  ck_assert_int_eq(isEmpty, -1);
-} END_TEST
-
-START_TEST(stack_isEmpty_non_empty_stack) {
-  int testDataLength = 3;
+START_TEST(push) {
+  LDSC_stack* myStack = LDSC_stack_init();
   int testData[] = {17, 9, 19};
-  LDSC_stack* myStack = LDSC_stack_init();
-  for (int i = 0; i < testDataLength; i++)
-    LDSC_stack_push(myStack, &testData[i]);
-
-  // function should return 0 for a non empty stack
-  int isEmpty = LDSC_stack_isEmpty(myStack);
-  ck_assert_int_eq(isEmpty, 0);
-
-  free(myStack);
+  for (int i = 0; i < 3 ; i++)
+    myStack->push(myStack, &testData[i]);
+  int size = myStack->size(myStack);
+  ck_assert_int_eq(size, 3);
+  myStack->delete(myStack);
 } END_TEST
 
-START_TEST(stack_isEmpty_empty_stack) {
-  LDSC_stack* myStack = LDSC_stack_init();
+/* TEST CASE PUSH END */
 
-  // function should return 1 for an empty stack
-  int isEmpty = LDSC_stack_isEmpty(myStack);
+/**************************************************/
+
+/* TEST CASE ISEMPTY START */
+
+START_TEST(isEmpty_invalid_params) {
+  LDSC_stack* myStack = LDSC_stack_init();
+  int isEmpty = myStack->isEmpty(NULL);
+  ck_assert_int_eq(isEmpty, -1);
+  myStack->delete(myStack);
+} END_TEST
+
+START_TEST(isEmpty) {
+  LDSC_stack* myStack = LDSC_stack_init();
+  int isEmpty;
+
+  isEmpty = myStack->isEmpty(myStack);
   ck_assert_int_eq(isEmpty, 1);
 
-  free(myStack);
+  int testData = 17;
+  myStack->push(myStack, &testData);
+  isEmpty = myStack->isEmpty(myStack);
+  ck_assert_int_eq(isEmpty, 0);
+  myStack->delete(myStack);
 }
 
-// TEST CASE ISEMPTY END
+/* TEST CASE ISEMPTY END */
 
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+/**************************************************/
 
-// TEST CASE PEEK START
+/* TEST CASE PEEK START */
 
-START_TEST(stack_peek_null_stack) {
-  // function should return null
-  void* dataOutPtr = LDSC_stack_peek(NULL);
-  ck_assert_ptr_null(dataOutPtr);
-} END_TEST
-
-START_TEST(stack_peek) {
-  int testDataLength = 3;
-  int testData[] = {17, 9, 19};
+START_TEST(peek_invalid_params) {
   LDSC_stack* myStack = LDSC_stack_init();
-  for (int i = 0; i < testDataLength; i++)
-    LDSC_stack_push(myStack, &testData[i]);
-
-  // function should return the data ptr containing int 19
-  void* dataOutPtr = LDSC_stack_peek(myStack);
-  ck_assert_ptr_nonnull(dataOutPtr);
-  ck_assert_int_eq(*(int*)dataOutPtr, testData[testDataLength-1]);
-
-  free(myStack);
+  void* dataPtr = myStack->peek(NULL);
+  ck_assert_ptr_null(dataPtr);
+  myStack->delete(myStack);
 } END_TEST
 
-// TEST CASE PEEK END
-
-// - - - - - - - - - - - - - - - - - - - - - - - - -
-
-// TEST CASE POP START
-
-START_TEST(stack_pop_null_stack) {
-  // peek should return null
-  void* dataOutPtr = LDSC_stack_peek(NULL);
-  ck_assert_ptr_null(dataOutPtr);
-} END_TEST
-
-START_TEST(stack_pop_empty_stack) {
+START_TEST(peek) {
   LDSC_stack* myStack = LDSC_stack_init();
+  void* dataPtr;
 
-  // peek should return null
-  void* dataOutPtr = LDSC_stack_peek(myStack);
-  ck_assert_ptr_null(dataOutPtr);
+  dataPtr = myStack->peek(myStack);
+  ck_assert_ptr_null(dataPtr);
 
-  free(myStack);
+  int testData = 17;
+  myStack->push(myStack, &testData);
+  dataPtr = myStack->peek(myStack);
+  ck_assert_ptr_nonnull(dataPtr);
+  ck_assert_int_eq(*(int*)dataPtr, testData);
+
+  myStack->delete(myStack);
 } END_TEST
 
-START_TEST(stack_pop_non_empty_stack) {
-  int testDataLength = 3;
-  int testData[] = {17, 9, 19};
+/* TEST CASE PEEK END */
+
+/**************************************************/
+
+/* TEST CASE POP START */
+
+START_TEST(pop_invalid_params) {
   LDSC_stack* myStack = LDSC_stack_init();
-  for (int i = 0; i < testDataLength; i++)
-    LDSC_stack_push(myStack, &testData[i]);
-
-  // peek should return data ptr containing int 19
-  void* dataOutPtr = LDSC_stack_pop(myStack);
-  ck_assert_ptr_nonnull(dataOutPtr);
-  ck_assert_int_eq(*(int*)dataOutPtr, testData[testDataLength-1]);
-
-  // peek should return data ptr containing int 9
-  dataOutPtr = LDSC_stack_peek(myStack);
-  ck_assert_ptr_nonnull(dataOutPtr);
-  ck_assert_int_eq(*(int*)dataOutPtr, testData[testDataLength-2]);
-
+  void* dataPtr = myStack->pop(NULL);
+  ck_assert_ptr_null(dataPtr);
+  myStack->delete(myStack);
 } END_TEST
 
-// TEST CASE POP END
-
-// - - - - - - - - - - - - - - - - - - - - - - - - -
-
-// TEST CASE INTEGRATION START
-
-START_TEST(stack_integration) {
-  void* dataOutPtr;
-  int trackedLength = 0;
-
-  int testDataLength = 3;
-  int testData[] = {17, 9, 19};
+START_TEST(pop) {
   LDSC_stack* myStack = LDSC_stack_init();
-  for (int i = 0; i < testDataLength; i++) {
-    LDSC_stack_push(myStack, &testData[i]);
-    trackedLength++;
-  }
+  void* dataPtr;
 
-  int length = LDSC_stack_length(myStack);
-  ck_assert_int_eq(length, trackedLength);
+  dataPtr = myStack->pop(myStack);
+  ck_assert_ptr_null(dataPtr);
 
-  while (LDSC_stack_peek(myStack)) {
-    dataOutPtr = LDSC_stack_pop(myStack);
-    trackedLength--;
-    length = LDSC_stack_length(myStack);
-    ck_assert_int_eq(*(int*)dataOutPtr, testData[trackedLength]);
-    ck_assert_int_eq(length, trackedLength);
-  }
+  int testData = 17;
+  myStack->push(myStack, &testData);
+  dataPtr = myStack->pop(myStack);
+  ck_assert_ptr_nonnull(dataPtr);
+  ck_assert_int_eq(*(int*)dataPtr, testData);
 
-  length = LDSC_stack_length(myStack);
-  ck_assert_int_eq(length, trackedLength);
+  int size = myStack->size(myStack);
+  ck_assert_int_eq(size, 0);
 
-  free(myStack);
+  myStack->delete(myStack);
 } END_TEST
 
-// TEST CASE INTEGRATION END
+/* TEST CASE POP END */
 
-// - - - - - - - - - - - - - - - - - - - - - - - - -
+/**************************************************/
 
-// SUITE DEFINITION
+/* SUITE DEFINITION */
 
 Suite* LDSC_stack_suite(void) {
   Suite *s;
   s = suite_create("LDSC_stack");
 
   TCase* tc_core = tcase_create("core");
-  tcase_add_test(tc_core, stack_core);
+  tcase_add_test(tc_core, initialization);
   suite_add_tcase(s, tc_core);
 
-  TCase* tc_length = tcase_create("length");
-  tcase_add_test(tc_length, stack_length_null_stack);
-  tcase_add_test(tc_length, stack_length);
-  suite_add_tcase(s, tc_length);
+  TCase* tc_size = tcase_create("sizej");
+  tcase_add_test(tc_size, size_invalid_params);
+  tcase_add_test(tc_size, size_empty_stack);
+  suite_add_tcase(s, tc_size);
 
   TCase* tc_push = tcase_create("push");
-  tcase_add_test(tc_push, stack_push_null_stack);
-  tcase_add_test(tc_push, stack_push_null_data);
-  tcase_add_test(tc_push, stack_push);
+  tcase_add_test(tc_push, push_invalid_params);
+  tcase_add_test(tc_push, push);
   suite_add_tcase(s, tc_push);
 
   TCase* tc_isEmpty = tcase_create("isEmpty");
-  tcase_add_test(tc_isEmpty, stack_isEmpty_null_stack);
-  tcase_add_test(tc_isEmpty, stack_isEmpty_non_empty_stack);
-  tcase_add_test(tc_isEmpty, stack_isEmpty_empty_stack);
+  tcase_add_test(tc_isEmpty, isEmpty_invalid_params);
+  tcase_add_test(tc_isEmpty, isEmpty);
   suite_add_tcase(s, tc_isEmpty);
 
   TCase* tc_peek = tcase_create("peek");
-  tcase_add_test(tc_peek, stack_peek_null_stack);
-  tcase_add_test(tc_peek, stack_peek);
+  tcase_add_test(tc_peek, peek_invalid_params);
+  tcase_add_test(tc_peek, peek);
   suite_add_tcase(s, tc_peek);
 
   TCase* tc_pop = tcase_create("pop");
-  tcase_add_test(tc_pop, stack_pop_null_stack);
-  tcase_add_test(tc_pop, stack_pop_empty_stack);
-  tcase_add_test(tc_pop, stack_pop_non_empty_stack);
+  tcase_add_test(tc_pop, pop_invalid_params);
+  tcase_add_test(tc_pop, pop);
   suite_add_tcase(s, tc_pop);
-
-  TCase* tc_integration = tcase_create("integration");
-  tcase_add_test(tc_integration, stack_integration);
-  suite_add_tcase(s, tc_integration);
 
   return s;
 }
