@@ -1,3 +1,4 @@
+#include "LDSC_errors.h"
 #include <LDSC_linkedList.h>
 #include <stdlib.h>
 
@@ -11,6 +12,8 @@ typedef struct Node {
 /** create and return a new linked list node */
 static Node* Node_init(void* dataPtrIn) {
   Node* newNode = (Node*)malloc(sizeof(Node));
+  if (!newNode) return NULL;
+
   newNode->dataPtr = dataPtrIn;
   newNode->next = NULL;
   newNode->prev = NULL;
@@ -38,20 +41,34 @@ static Node* LDSC_linkedList_getNode(LDSC_linkedList* self, int index) {
 /**
   * @brief Get length of the linked list.
   * @param self LDSC_linkedList pointer.
+  * @param status Error pointer.
   * @return Length of the linked list as integer type.
   */
-int LDSC_linkedList_length(LDSC_linkedList* self) {
-  if (!self) return -1;
+int LDSC_linkedList_length(LDSC_linkedList* self, LDSC_error* status) {
+  if (status) *status = OK;
+
+  if (!self) {
+    if (status) *status = NULL_SELF;
+    return ERROR;
+  }
+
   return self->pd->length;
 }
 
 /**
   * @brief Check if linked list is empty.
   * @param self LDSC_linkedList pointer.
+  * @param status Error pointer.
   * @return Integer where 1 = empty and 0 = not empty.
   */
-int LDSC_linkedList_empty(LDSC_linkedList* self) {
-  if (!self) return -1;
+int LDSC_linkedList_empty(LDSC_linkedList* self, LDSC_error* status) {
+  if (status) *status = OK;
+
+  if (!self) {
+    if (status) *status = NULL_SELF;
+    return ERROR;
+  }
+
   return self->pd->length == 0;
 }
 
@@ -59,13 +76,28 @@ int LDSC_linkedList_empty(LDSC_linkedList* self) {
   * @brief Add item at the end of the linked list.
   * @param self LDSC_linkedList pointer.
   * @param dataPtr Pointer to data.
-  * @return Integer where 1 = success and 0 = failure.
+  * @param status Error pointer.
   * @details
   * Keep note that prepend performs a shallow copy of the data.
   */
-int LDSC_linkedList_append(LDSC_linkedList* self, void* dataPtr) {
-  if (!self || !dataPtr) return -1;
+void LDSC_linkedList_append(LDSC_linkedList* self, void* dataPtr, LDSC_error* status) {
+  if (status) *status = OK;
+
+  if (!self) {
+    if (status) *status = NULL_SELF;
+    return;
+  }
+
+  if (!dataPtr) {
+    if (status) *status = NULL_DATAPTR;
+    return;
+  }
+
   Node* newNode = Node_init(dataPtr);
+  if (!newNode) {
+    if (status) *status = NODE_MALLOC;
+    return;
+  }
 
   if (!self->pd->tail) {
     self->pd->head = newNode;
@@ -76,20 +108,35 @@ int LDSC_linkedList_append(LDSC_linkedList* self, void* dataPtr) {
   self->pd->tail = newNode;
   
   self->pd->length++;
-  return 1;
+  return;
 }
 
 /**
   * @brief Add item at the front of the linked list.
   * @param self LDSC_linkedList pointer.
   * @param dataPtr Pointer to data.
-  * @return Integer where 1 = success and 0 = failure.
+  * @param status Error pointer.
   * @details
   * Keep note that append performs a shallow copy of the data.
   */
-int LDSC_linkedList_prepend(LDSC_linkedList* self, void* dataPtr) {
-  if (!self || !dataPtr) return -1;
+void LDSC_linkedList_prepend(LDSC_linkedList* self, void* dataPtr, LDSC_error* status) {
+  if (status) *status = OK;
+  
+  if (!self) {
+    if (status) *status = NULL_SELF;
+    return;
+  }
+
+  if (!dataPtr) {
+    if (status) *status = NULL_DATAPTR;
+    return;
+  }
+
   Node* newNode = Node_init(dataPtr);
+  if (!newNode) {
+    if (status) *status = NODE_MALLOC;
+    return;
+  }
 
   if (!self->pd->head) {
     self->pd->tail = newNode;
@@ -100,7 +147,7 @@ int LDSC_linkedList_prepend(LDSC_linkedList* self, void* dataPtr) {
   self->pd->head = newNode;
 
   self->pd->length++;
-  return 1;
+  return;
 }
 
 /**
@@ -108,17 +155,42 @@ int LDSC_linkedList_prepend(LDSC_linkedList* self, void* dataPtr) {
   * @param self LDSC_linkedList pointer.
   * @param dataPtr Pointer to data.
   * @param index Index to add item at.
-  * @return Integer where 1 = success and 0 = failure.
+  * @param status Error pointer.
   * @details
   * Keep note that add performs a shallow copy of the data.
   */
-int LDSC_linkedList_add(LDSC_linkedList* self, void* dataPtr, int index) {
-  if (!self || !dataPtr) return -1;
-  if (index < 0 || index > self->pd->length) return 0;
-  if (index == 0) return LDSC_linkedList_append(self, dataPtr);
-  if (index == self->pd->length) return LDSC_linkedList_prepend(self, dataPtr);
+void LDSC_linkedList_add(LDSC_linkedList* self, void* dataPtr, int index, LDSC_error* status) {
+  if (status) *status = OK;
+  
+  if (!self) {
+    if (status) *status = NULL_SELF;
+    return;
+  }
+
+  if (!dataPtr) {
+    if (status) *status = NULL_DATAPTR;
+    return;
+  }
+
+  if (index < 0) {
+    if (status) *status = LESS_THAN_INDEX;
+    return;
+  }
+
+  if (index > self->pd->length) {
+    if (status) *status = GREATER_THAN_INDEX;
+    return;
+  }
+
+  if (index == 0) return LDSC_linkedList_append(self, dataPtr, status);
+  if (index == self->pd->length) return LDSC_linkedList_prepend(self, dataPtr, status);
 
   Node* newNode = Node_init(dataPtr);
+  if (!newNode) {
+    if (status) *status = NODE_MALLOC;
+    return;
+  }
+
   Node* prevNode = LDSC_linkedList_getNode(self, index - 1);
   Node* nextNode = prevNode->next;
 
@@ -128,18 +200,36 @@ int LDSC_linkedList_add(LDSC_linkedList* self, void* dataPtr, int index) {
   nextNode->prev = newNode;
 
   self->pd->length++;
-  return 1;
+  return;
 }
 
 /**
   * @brief Get item at index.
   * @param self LDSC_linkedList pointer.
   * @param index Index of item to get.
+  * @param status Error pointer.
   * @return Data pointer of item at index.
   */
-void* LDSC_linkedList_at(LDSC_linkedList* self, int index) {
-  if (!self || index < 0 || index >= self->pd->length) return NULL;
+void* LDSC_linkedList_at(LDSC_linkedList* self, int index, LDSC_error* status) {
+  if (status) *status = OK;
+
+  if (!self) {
+    if (status) *status = NULL_SELF;
+    return NULL;
+  }
+
+  if (index < 0) {
+    if (status) *status = LESS_THAN_INDEX;
+    return NULL;
+  }
+
+  if (index >= self->pd->length) {
+    if (status) *status = GREATER_THAN_INDEX;
+    return NULL;
+  }
+
   Node* targetNode = LDSC_linkedList_getNode(self, index);
+
   return targetNode->dataPtr;
 }
 
@@ -148,12 +238,34 @@ void* LDSC_linkedList_at(LDSC_linkedList* self, int index) {
   * @param self LDSC_linkedList pointer.
   * @param dataPtr Pointer to data.
   * @param index Index of item to replace with dataPtr.
+  * @param status Error pointer.
   * @return Data pointer of item that was replaced.
   * @details
   * Keep note that replace performs a shallow copy of the data.
   */
-void* LDSC_linkedList_replace(LDSC_linkedList* self, void* dataPtr, int index) {
-  if (!self || !dataPtr || index < 0 || index >= self->pd->length) return NULL;
+void* LDSC_linkedList_replace(LDSC_linkedList* self, void* dataPtr, int index, LDSC_error* status) {
+  if (status) *status = OK;
+
+  if (!self) {
+    if (status) *status = NULL_SELF;
+    return NULL;
+  }
+
+  if (!dataPtr) {
+    if (status) *status = NULL_DATAPTR;
+    return NULL;
+  }
+
+  if (index < 0) {
+    if (status) *status = LESS_THAN_INDEX;
+    return NULL;
+  }
+
+  if (index >= self->pd->length) {
+    if (status) *status = GREATER_THAN_INDEX;
+    return NULL;
+  }
+
   Node* targetNode = LDSC_linkedList_getNode(self, index);
 
   void* replacedDataPtr = targetNode->dataPtr;
@@ -165,10 +277,19 @@ void* LDSC_linkedList_replace(LDSC_linkedList* self, void* dataPtr, int index) {
 /**
   * @brief Remove item at the front of the list.
   * @param self LDSC_linkedList pointer.
+  * @param status Error pointer.
   * @return Data pointer of item that was removed.
   */
-void* LDSC_linkedList_pop(LDSC_linkedList* self) {
-  if (!self || !self->pd->head) return NULL;
+void* LDSC_linkedList_pop(LDSC_linkedList* self, LDSC_error* status) {
+  if (status) *status = OK;
+
+  if (!self) {
+    if (status) *status = NULL_SELF;
+    return NULL;
+  }
+
+  if (!self->pd->head)
+    return NULL;
 
   Node* targetNode = self->pd->head;
   void* returnData = targetNode->dataPtr;
@@ -189,10 +310,19 @@ void* LDSC_linkedList_pop(LDSC_linkedList* self) {
 /**
   * @brief Remove item at the end of the list.
   * @param self LDSC_linkedList pointer.
+  * @param status Error pointer.
   * @return Data pointer of item that was removed.
   */
-void* LDSC_linkedList_pull(LDSC_linkedList* self) {
-  if (!self || !self->pd->tail) return NULL;
+void* LDSC_linkedList_pull(LDSC_linkedList* self, LDSC_error* status) {
+  if (status) *status = OK;
+
+  if (!self) {
+    if (status) *status = NULL_SELF;
+    return NULL;
+  }
+
+   if (!self->pd->tail)
+     return NULL;
 
   Node* targetNode = self->pd->tail;
   void* returnData = targetNode->dataPtr;
@@ -214,12 +344,29 @@ void* LDSC_linkedList_pull(LDSC_linkedList* self) {
   * @brief Remove item at index.
   * @param self LDSC_linkedList pointer.
   * @param index Index of item to remove.
+  * @param status Error pointer.
   * @return Data pointer of item that was removed.
   */
-void* LDSC_linkedList_remove(LDSC_linkedList* self, int index) {
-  if (!self || index < 0 || index >= self->pd->length) return NULL;
-  if (index == 0) return LDSC_linkedList_pop(self);
-  if (index == self->pd->length - 1) return LDSC_linkedList_pull(self);
+void* LDSC_linkedList_remove(LDSC_linkedList* self, int index, LDSC_error* status) {
+  if (status) *status = OK;
+
+  if (!self) {
+    if (status) *status = NULL_SELF;
+    return NULL;
+  }
+
+  if (index < 0) {
+    if (status) *status = LESS_THAN_INDEX;
+    return NULL;
+  }
+
+  if (index >= self->pd->length) {
+    if (status) *status = GREATER_THAN_INDEX;
+    return NULL;
+  }
+
+  if (index == 0) return LDSC_linkedList_pop(self, status);
+  if (index == self->pd->length - 1) return LDSC_linkedList_pull(self, status);
 
   Node* targetNode = LDSC_linkedList_getNode(self, index); 
   void* returnData = targetNode->dataPtr;
@@ -239,22 +386,47 @@ void* LDSC_linkedList_remove(LDSC_linkedList* self, int index) {
 /**
   * @brief Remove all items in the list.
   * @param self LDSC_linkedList pointer.
+  * @param status Error pointer.
   */
-void LDSC_linkedList_clear(LDSC_linkedList* self) {
-  if (!self) return;
-  while (!self->empty(self)) {
-    self->pop(self);
+void LDSC_linkedList_clear(LDSC_linkedList* self, LDSC_error* status) {
+  if (status) *status = OK;
+
+  if (!self) {
+    if (status) *status = NULL_SELF;
+    return;
   }
+
+  //while (!self->empty(self, status)) {
+  while (self->pd->length != 0) {
+    self->pop(self, status);
+    if (*status != OK)
+      return;
+  }
+
+  if (self->pd->length != 0)
+    if (status) *status = ERROR;
+
   return;
 }
 
 /**
   * @brief Delete the linked list
   * @param self LDSC_ilnkedList pionter.
+  * @param status Error pointer.
   */
-void LDSC_linkedList_delete(LDSC_linkedList* self) {
-  if (!self) return;
-  self->clear(self);
+void LDSC_linkedList_delete(LDSC_linkedList* self, LDSC_error* status) {
+  if (status) *status = OK;
+
+  if (!self) {
+    if (status) *status = NULL_SELF;
+    return;
+  }
+
+  self->clear(self, status);
+  
+  if (self->pd->length != 0)
+    if (status) *status = DELETE_FAIL;
+
   free(self->pd);
   free(self);
   return;
@@ -264,11 +436,24 @@ void LDSC_linkedList_delete(LDSC_linkedList* self) {
 
 /**
  * @brief Create a new linked list.
+ * @param status Error pointer.
  * @return Pointer to a LDSC_linkedList.
  */
-LDSC_linkedList* LDSC_linkedList_init() {
+LDSC_linkedList* LDSC_linkedList_init(LDSC_error* status) {
+  if (status) *status = OK;
+
   LDSC_linkedList* newLL = malloc(sizeof(LDSC_linkedList));
+  if (!newLL) {
+    if (status) *status = STRUCTURE_MALLOC;
+    return NULL;
+  }
+
+
   newLL->pd = malloc(sizeof(privateData));
+  if (!newLL->pd) {
+    if (status) *status = PRIVATEDATA_MALLOC;
+    return NULL;
+  }
 
   newLL->pd->length = 0;
   newLL->pd->head = NULL;
