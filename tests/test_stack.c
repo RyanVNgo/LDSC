@@ -1,8 +1,17 @@
 #include <stdlib.h>
 
+#include "LDSC_stack.h"
 #include "test_stack.h"
-#include <LDSC.h>
 #include <check.h>
+
+/**
+ * Test suite for LDSC_stack data structure.
+ * Only the 'initialization' test will check for possible malloc errors.
+ * All following tests will assume successful mallocs.
+ * All tests will test for successful LDSC_stack delete.
+ * All status checks will occur before value checks, if applicable.
+ * Beyond that, status checks will only occur the methods that the test targets
+ */
 
 /**************************************************/
 
@@ -14,7 +23,9 @@ START_TEST(initialization) {
     void* top;
   } privateData;
 
-  LDSC_stack* myStack = LDSC_stack_init();  
+  LDSC_error status = OK;
+  LDSC_stack* myStack = LDSC_stack_init(&status);
+  ck_assert_int_eq(status, OK);
   ck_assert_ptr_nonnull(myStack);
 
   privateData* pd = (privateData*)myStack->pd;
@@ -22,7 +33,8 @@ START_TEST(initialization) {
   ck_assert_int_eq(pd->size, 0);
   ck_assert_ptr_null(pd->top);
 
-  myStack->delete(myStack);
+  myStack->delete(myStack, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE CORE END */
@@ -32,17 +44,27 @@ START_TEST(initialization) {
 /* TEST CASE SIZE START */
 
 START_TEST(size_invalid_params) {
-  LDSC_stack* myStack = LDSC_stack_init();
-  int size = myStack->size(NULL);
-  ck_assert_int_eq(size, -1);
-  myStack->delete(myStack);
+  LDSC_error status = OK;
+  LDSC_stack* myStack = LDSC_stack_init(&status);
+
+  int size = myStack->size(NULL, &status);
+  ck_assert_int_eq(status, NULL_SELF);
+  ck_assert_int_eq(size, ERROR);
+
+  myStack->delete(myStack, &status);
+  ck_assert_int_eq(status, OK);
 }
 
 START_TEST(size_empty_stack) {
-  LDSC_stack* myStack = LDSC_stack_init();
-  int size = myStack->size(myStack);
+  LDSC_error status = OK;
+  LDSC_stack* myStack = LDSC_stack_init(&status);
+
+  int size = myStack->size(myStack, &status);
+  ck_assert_int_eq(status, OK);
   ck_assert_int_eq(size, 0);
-  myStack->delete(myStack);
+
+  myStack->delete(myStack, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE SIZE END */
@@ -52,51 +74,79 @@ START_TEST(size_empty_stack) {
 /* TEST CASE PUSH START */
 
 START_TEST(push_invalid_params) {
-  LDSC_stack* myStack = LDSC_stack_init();
+  LDSC_error status = OK;
+  LDSC_stack* myStack = LDSC_stack_init(&status);
   int testData = 17;
-  myStack->push(NULL, NULL);
-  myStack->push(myStack, NULL);
-  myStack->push(NULL, &testData);
-  int size = myStack->size(myStack);
+
+  myStack->push(NULL, NULL, &status);
+  ck_assert_int_eq(status, NULL_SELF);
+
+  myStack->push(myStack, NULL, &status);
+  ck_assert_int_eq(status, NULL_DATAPTR);
+
+  myStack->push(NULL, &testData, &status);
+  ck_assert_int_eq(status, NULL_SELF);
+  
+  int size = myStack->size(myStack, &status);
   ck_assert_int_eq(size, 0);
-  myStack->delete(myStack);
+
+  myStack->delete(myStack, &status);
+  ck_assert_int_eq(status, OK);
 }
 
 START_TEST(push) {
-  LDSC_stack* myStack = LDSC_stack_init();
+  LDSC_error status = OK;
+  LDSC_stack* myStack = LDSC_stack_init(&status);
   int testData[] = {17, 9, 19};
-  for (int i = 0; i < 3 ; i++)
-    myStack->push(myStack, &testData[i]);
-  int size = myStack->size(myStack);
+
+  for (int i = 0; i < 3 ; i++) {
+    myStack->push(myStack, &testData[i], &status);
+    ck_assert_int_eq(status, OK);
+  }
+
+  int size = myStack->size(myStack, &status);
   ck_assert_int_eq(size, 3);
-  myStack->delete(myStack);
+
+  myStack->delete(myStack, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE PUSH END */
 
 /**************************************************/
 
-/* TEST CASE ISEMPTY START */
+/* TEST CASE EMPTY START */
 
-START_TEST(isEmpty_invalid_params) {
-  LDSC_stack* myStack = LDSC_stack_init();
-  int isEmpty = myStack->isEmpty(NULL);
-  ck_assert_int_eq(isEmpty, -1);
-  myStack->delete(myStack);
+START_TEST(empty_invalid_params) {
+  LDSC_error status = OK;
+  LDSC_stack* myStack = LDSC_stack_init(&status);
+
+  int isEmpty = myStack->empty(NULL, &status);
+  ck_assert_int_eq(status, NULL_SELF);
+  ck_assert_int_eq(isEmpty, ERROR);
+
+  myStack->delete(myStack, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
-START_TEST(isEmpty) {
-  LDSC_stack* myStack = LDSC_stack_init();
+START_TEST(empty) {
+  LDSC_error status = OK;
+  LDSC_stack* myStack = LDSC_stack_init(&status);
   int isEmpty;
 
-  isEmpty = myStack->isEmpty(myStack);
+  isEmpty = myStack->empty(myStack, &status);
+  ck_assert_int_eq(status, OK);
   ck_assert_int_eq(isEmpty, 1);
 
   int testData = 17;
-  myStack->push(myStack, &testData);
-  isEmpty = myStack->isEmpty(myStack);
+  myStack->push(myStack, &testData, &status);
+
+  isEmpty = myStack->empty(myStack, &status);
+  ck_assert_int_eq(status, OK);
   ck_assert_int_eq(isEmpty, 0);
-  myStack->delete(myStack);
+ 
+  myStack->delete(myStack, &status);
+  ck_assert_int_eq(status, OK);
 }
 
 /* TEST CASE ISEMPTY END */
@@ -106,26 +156,36 @@ START_TEST(isEmpty) {
 /* TEST CASE PEEK START */
 
 START_TEST(peek_invalid_params) {
-  LDSC_stack* myStack = LDSC_stack_init();
-  void* dataPtr = myStack->peek(NULL);
+  LDSC_error status = OK;
+  LDSC_stack* myStack = LDSC_stack_init(&status);
+
+  void* dataPtr = myStack->peek(NULL, &status);
+  ck_assert_int_eq(status, NULL_SELF);
   ck_assert_ptr_null(dataPtr);
-  myStack->delete(myStack);
+
+  myStack->delete(myStack, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 START_TEST(peek) {
-  LDSC_stack* myStack = LDSC_stack_init();
+  LDSC_error status = OK;
+  LDSC_stack* myStack = LDSC_stack_init(&status);
+  int testData = 17;
   void* dataPtr;
 
-  dataPtr = myStack->peek(myStack);
+  dataPtr = myStack->peek(myStack, &status);
+  ck_assert_int_eq(status, OK);
   ck_assert_ptr_null(dataPtr);
 
-  int testData = 17;
-  myStack->push(myStack, &testData);
-  dataPtr = myStack->peek(myStack);
+  myStack->push(myStack, &testData, &status);
+  
+  dataPtr = myStack->peek(myStack, &status);
+  ck_assert_int_eq(status, OK);
   ck_assert_ptr_nonnull(dataPtr);
   ck_assert_int_eq(*(int*)dataPtr, testData);
 
-  myStack->delete(myStack);
+  myStack->delete(myStack, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE PEEK END */
@@ -135,29 +195,39 @@ START_TEST(peek) {
 /* TEST CASE POP START */
 
 START_TEST(pop_invalid_params) {
-  LDSC_stack* myStack = LDSC_stack_init();
-  void* dataPtr = myStack->pop(NULL);
+  LDSC_error status = OK;
+  LDSC_stack* myStack = LDSC_stack_init(&status);
+
+  void* dataPtr = myStack->pop(NULL, &status);
+  ck_assert_int_eq(status, NULL_SELF);
   ck_assert_ptr_null(dataPtr);
-  myStack->delete(myStack);
+
+  myStack->delete(myStack, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 START_TEST(pop) {
-  LDSC_stack* myStack = LDSC_stack_init();
+  LDSC_error status = OK;
+  LDSC_stack* myStack = LDSC_stack_init(&status);
+  int testData = 17;
   void* dataPtr;
 
-  dataPtr = myStack->pop(myStack);
+  dataPtr = myStack->pop(myStack, &status);
+  ck_assert_int_eq(status, OK);
   ck_assert_ptr_null(dataPtr);
 
-  int testData = 17;
-  myStack->push(myStack, &testData);
-  dataPtr = myStack->pop(myStack);
+  myStack->push(myStack, &testData, &status);
+  
+  dataPtr = myStack->pop(myStack, &status);
+  ck_assert_int_eq(status, OK);
   ck_assert_ptr_nonnull(dataPtr);
   ck_assert_int_eq(*(int*)dataPtr, testData);
 
-  int size = myStack->size(myStack);
+  int size = myStack->size(myStack, &status);
   ck_assert_int_eq(size, 0);
 
-  myStack->delete(myStack);
+  myStack->delete(myStack, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE POP END */
@@ -184,10 +254,10 @@ Suite* LDSC_stack_suite(void) {
   tcase_add_test(tc_push, push);
   suite_add_tcase(s, tc_push);
 
-  TCase* tc_isEmpty = tcase_create("isEmpty");
-  tcase_add_test(tc_isEmpty, isEmpty_invalid_params);
-  tcase_add_test(tc_isEmpty, isEmpty);
-  suite_add_tcase(s, tc_isEmpty);
+  TCase* tc_empty = tcase_create("empty");
+  tcase_add_test(tc_empty, empty_invalid_params);
+  tcase_add_test(tc_empty, empty);
+  suite_add_tcase(s, tc_empty);
 
   TCase* tc_peek = tcase_create("peek");
   tcase_add_test(tc_peek, peek_invalid_params);

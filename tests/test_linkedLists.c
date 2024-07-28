@@ -3,7 +3,17 @@
 
 #include "LDSC_linkedList.h"
 #include "test_linkedLists.h"
+#include <LDSC_errors.h>
 #include <check.h>
+
+/**
+ * Test suite for LDSC_linkedList data structure.
+ * Only the 'initialization' test will check for possible malloc errors.
+ * All following tests will assume successful mallocs.
+ * All tests will test for successful LDSC_linkedList delete.
+ * All status checks will occur before value checks, if applicable.
+ * Beyond that, status checks will only occur the methods that the test targets
+ */
 
 /**************************************************/
 
@@ -12,24 +22,20 @@ enum Test_constants {
   MAX_INT_VALUE = 100
 };
 
-enum Status {
-  ERROR = -1,
-  FAIL = 0,
-  SUCCESS = 1
-};
-
 /**************************************************/
 
 /* TEST CASE CORE START */
 
 START_TEST(initialization) {
+  LDSC_error status = OK;
   typedef struct privateData {
     int length;
     void* head;
     void* tail;
   } privateData;
 
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
+  ck_assert_int_eq(status, OK);
   ck_assert_ptr_nonnull(myLL);
 
   privateData* pd = (privateData*)myLL->pd;
@@ -41,7 +47,8 @@ START_TEST(initialization) {
   ck_assert_ptr_null(head);
   ck_assert_ptr_null(tail);
 
-  myLL->delete(myLL);
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE CORE END */
@@ -51,17 +58,27 @@ START_TEST(initialization) {
 /* TEST CASE LENGTH START */
 
 START_TEST(length_invalid_params) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
-  int length = myLL->length(NULL);
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
+
+  int length = myLL->length(NULL, &status);
+  ck_assert_int_eq(status, NULL_SELF);
   ck_assert_int_eq(length, ERROR);
-  myLL->delete(myLL);
+  
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 START_TEST(length) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
-  int length = myLL->length(myLL);
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
+
+  int length = myLL->length(myLL, &status);
+  ck_assert_int_eq(status, OK);
   ck_assert_int_eq(length, 0);
-  myLL->delete(myLL);
+  
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE LENGTH END */
@@ -71,17 +88,27 @@ START_TEST(length) {
 /* TEST CASE EMPTY END */
 
 START_TEST(empty_invalid_params) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
-  int empty = myLL->empty(NULL);
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
+
+  int empty = myLL->empty(NULL, &status);
+  ck_assert_int_eq(status, NULL_SELF);
   ck_assert_int_eq(empty, ERROR);
-  myLL->delete(myLL);
+  
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 START_TEST(empty) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
-  int empty = myLL->empty(myLL);
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
+
+  int empty = myLL->empty(myLL, &status);
+  ck_assert_int_eq(status, OK);
   ck_assert_int_eq(empty, 1);
-  myLL->delete(myLL);
+
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE EMPTY END */
@@ -91,24 +118,26 @@ START_TEST(empty) {
 /* TEST CASE APPEND START */
 
 START_TEST(append_invalid_params) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
-  int status = 0;
-
-  status = myLL->append(NULL, NULL);
-  ck_assert_int_eq(status, ERROR);
-
-  status = myLL->append(myLL, NULL);
-  ck_assert_int_eq(status, ERROR);
-
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   int testData = 17;
-  status = myLL->append(NULL, &testData);
-  ck_assert_int_eq(status, ERROR);
 
-  myLL->delete(myLL);
+  myLL->append(NULL, NULL, &status);
+  ck_assert_int_eq(status, NULL_SELF);
+
+  myLL->append(myLL, NULL, &status);
+  ck_assert_int_eq(status, NULL_DATAPTR);
+
+  myLL->append(NULL, &testData, &status);
+  ck_assert_int_eq(status, NULL_SELF);
+
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 START_TEST(append) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   const int testDataSize = rand() % MAX_DATA_SET_SIZE;
   int testData[testDataSize];
 
@@ -116,13 +145,16 @@ START_TEST(append) {
   for (i = 0; i < testDataSize; i++)
     testData[i] = rand() % MAX_INT_VALUE;
 
-  for (i = 0; i < testDataSize; i++)
-    if (myLL->append(myLL, &testData[i]) != SUCCESS) break;
+  for (i = 0; i < testDataSize; i++) {
+    myLL->append(myLL, &testData[i], &status);
+    ck_assert_int_eq(status, OK);
+  }
 
-  int length = myLL->length(myLL);
+  int length = myLL->length(myLL, &status);
   ck_assert_int_eq(length, testDataSize);
 
-  myLL->delete(myLL);
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE APPEND END */
@@ -132,24 +164,26 @@ START_TEST(append) {
 /* TEST CASE PREPEND START */
 
 START_TEST(prepend_invalid_params) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
-  int status = 0;
-
-  status = myLL->prepend(NULL, NULL);
-  ck_assert_int_eq(status, ERROR);
-
-  status = myLL->prepend(myLL, NULL);
-  ck_assert_int_eq(status, ERROR);
-
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   int testData = 17;
-  status = myLL->prepend(NULL, &testData);
-  ck_assert_int_eq(status, ERROR);
 
-  myLL->delete(myLL);
+  myLL->prepend(NULL, NULL, &status);
+  ck_assert_int_eq(status, NULL_SELF);
+
+  myLL->prepend(myLL, NULL, &status);
+  ck_assert_int_eq(status, NULL_DATAPTR);
+
+  myLL->prepend(NULL, &testData, &status);
+  ck_assert_int_eq(status, NULL_SELF);
+
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 START_TEST(prepend) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   const int testDataSize = rand() % MAX_DATA_SET_SIZE;
   int testData[testDataSize];
 
@@ -157,13 +191,16 @@ START_TEST(prepend) {
   for (i = 0; i < testDataSize; i++)
     testData[i] = rand() % MAX_INT_VALUE;
 
-  for (i = 0; i < testDataSize; i++)
-    if (myLL->prepend(myLL, &testData[i]) != SUCCESS) break;
+  for (i = 0; i < testDataSize; i++) {
+    myLL->prepend(myLL, &testData[i], &status);
+    ck_assert_int_eq(status, OK);
+  }
 
-  int length = myLL->length(myLL);
+  int length = myLL->length(myLL, &status);
   ck_assert_int_eq(length, testDataSize);
 
-  myLL->delete(myLL);
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE PREPEND END */
@@ -173,32 +210,35 @@ START_TEST(prepend) {
 /* TEST CASE ADD START */
 
 START_TEST(add_invalid_params) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
-  int status = 0;
-
-  status = myLL->add(NULL, NULL, 0);
-  ck_assert_int_eq(status, ERROR);
-
-  status = myLL->add(myLL, NULL, 0);
-  ck_assert_int_eq(status, ERROR);
-
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   int testData = 17;
-  status = myLL->add(NULL, &testData, 0);
-  ck_assert_int_eq(status, ERROR);
 
-  myLL->append(myLL, &testData);
-  status = myLL->add(myLL, &testData, -1);
-  ck_assert_int_eq(status, FAIL);
+  myLL->add(NULL, NULL, 0, &status);
+  ck_assert_int_eq(status, NULL_SELF);
+
+  myLL->add(myLL, NULL, 0, &status);
+  ck_assert_int_eq(status, NULL_DATAPTR);
+
+  myLL->add(NULL, &testData, 0, &status);
+  ck_assert_int_eq(status, NULL_SELF);
+
+  myLL->append(myLL, &testData, &status);
   
-  int length = myLL->length(myLL);
-  status = myLL->add(myLL, &testData, length + 1);
-  ck_assert_int_eq(status, FAIL);
+  myLL->add(myLL, &testData, -1, &status);
+  ck_assert_int_eq(status, LESS_THAN_INDEX);
+  
+  int length = myLL->length(myLL, &status);
+  myLL->add(myLL, &testData, length + 1, &status);
+  ck_assert_int_eq(status, GREATER_THAN_INDEX);
 
-  myLL->delete(myLL);
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 START_TEST(add) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   const int testDataSize = rand() % MAX_DATA_SET_SIZE;
   int testData[testDataSize];
 
@@ -208,15 +248,17 @@ START_TEST(add) {
   int index = 0;
   int length;
   for (int i = 0; i < testDataSize; i++) {
-    length = myLL->length(myLL);
+    length = myLL->length(myLL, &status);
     index = rand() % (length+1);
-    if (myLL->add(myLL, &testData[i], index) != SUCCESS) break;
+    myLL->add(myLL, &testData[i], index, &status);
+    ck_assert_int_eq(status, OK);
   }
 
-  length = myLL->length(myLL);
+  length = myLL->length(myLL, &status);
   ck_assert_int_eq(length, testDataSize);
 
-  myLL->delete(myLL);
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE ADD END */
@@ -226,23 +268,29 @@ START_TEST(add) {
 /* TEST CASE AT START */
 
 START_TEST(at_invalid_params) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   void* dataPtr = NULL;
 
-  dataPtr = myLL->at(NULL, 0);
+  dataPtr = myLL->at(NULL, 0, &status);
+  ck_assert_int_eq(status, NULL_SELF);
   ck_assert_ptr_null(dataPtr);
 
-  dataPtr = myLL->at(myLL, -1);
+  dataPtr = myLL->at(myLL, -1, &status);
+  ck_assert_int_eq(status, LESS_THAN_INDEX);
   ck_assert_ptr_null(dataPtr);
   
-  dataPtr = myLL->at(myLL, 0);
+  dataPtr = myLL->at(myLL, 0, &status);
+  ck_assert_int_eq(status, GREATER_THAN_INDEX);
   ck_assert_ptr_null(dataPtr);
   
-  myLL->delete(myLL);
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 START_TEST(at) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   const int testDataSize = rand() % MAX_DATA_SET_SIZE;
   int testData[testDataSize];
 
@@ -251,20 +299,22 @@ START_TEST(at) {
     testData[i] = rand() % MAX_INT_VALUE;
 
   for (i = 0; i < testDataSize; i++)
-    myLL->append(myLL, &testData[i]);
+    myLL->append(myLL, &testData[i], &status);
 
   void* dataPtr = NULL;
   int index = 0;
   int dataOut = 0;
   for (i = 0; i < testDataSize; i++) {
-    dataPtr = myLL->at(myLL, index);
+    dataPtr = myLL->at(myLL, index, &status);
+    ck_assert_int_eq(status, OK);
     ck_assert_ptr_nonnull(dataPtr);
-
+    
     dataOut = *(int*)dataPtr;
     ck_assert_int_eq(dataOut, testData[index]);
   }
 
-  myLL->delete(myLL);
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE AT END */
@@ -274,27 +324,38 @@ START_TEST(at) {
 /* TEST CASE REPLACE START */
 
 START_TEST(replace_invalid_params) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   void* dataPtr = NULL;
   int testData = 17;
 
-  dataPtr = myLL->replace(NULL, NULL, 0);
+  dataPtr = myLL->replace(NULL, NULL, 0, &status);
+  ck_assert_int_eq(status, NULL_SELF);
   ck_assert_ptr_null(dataPtr);
 
-  dataPtr = myLL->replace(myLL, NULL, 0);
+  dataPtr = myLL->replace(myLL, NULL, 0, &status);
+  ck_assert_int_eq(status, NULL_DATAPTR);
   ck_assert_ptr_null(dataPtr);
 
-  dataPtr = myLL->replace(NULL, &testData, 0);
+  dataPtr = myLL->replace(NULL, &testData, 0, &status);
+  ck_assert_int_eq(status, NULL_SELF);
   ck_assert_ptr_null(dataPtr);
 
-  dataPtr = myLL->replace(myLL, &testData, 0);
+  dataPtr = myLL->replace(myLL, &testData, -1, &status);
+  ck_assert_int_eq(status, LESS_THAN_INDEX);
   ck_assert_ptr_null(dataPtr);
 
-  myLL->delete(myLL);
+  dataPtr = myLL->replace(myLL, &testData, 0, &status);
+  ck_assert_int_eq(status, GREATER_THAN_INDEX);
+  ck_assert_ptr_null(dataPtr);
+
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 START_TEST(replace) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   const int testDataSize = rand() % MAX_DATA_SET_SIZE;
   int testData[testDataSize];
 
@@ -303,27 +364,29 @@ START_TEST(replace) {
     testData[i] = rand() % MAX_INT_VALUE;
 
   for (i = 0; i < testDataSize; i++)
-    myLL->append(myLL, &testData[i]);
+    myLL->append(myLL, &testData[i], &status);
 
   void* dataPtr = NULL;
   int dataOut = 0;
   for (i = 0; i < testDataSize; i++) {
     int newData = rand() % MAX_INT_VALUE;
 
-    dataPtr = myLL->replace(myLL, &newData, i);
+    dataPtr = myLL->replace(myLL, &newData, i, &status);
+    ck_assert_int_eq(status, OK);
     ck_assert_ptr_nonnull(dataPtr);
 
     dataOut = *(int*)dataPtr;
     ck_assert_int_eq(dataOut, testData[i]);
 
-    dataPtr = myLL->at(myLL, i);
+    dataPtr = myLL->at(myLL, i, &status);
     ck_assert_ptr_nonnull(dataPtr);
     
     dataOut = *(int*)dataPtr;
     ck_assert_int_eq(dataOut, newData);
   }
 
-  myLL->delete(myLL);
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE REPLACE END */
@@ -333,14 +396,20 @@ START_TEST(replace) {
 /* TEST CASE POP START */
 
 START_TEST(pop_invalid_params) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
-  void* dataPtr = myLL->pop(NULL);
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
+
+  void* dataPtr = myLL->pop(NULL, &status);
+  ck_assert_int_eq(status, NULL_SELF);
   ck_assert_ptr_null(dataPtr);
-  myLL->delete(myLL);
+
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 START_TEST(pop) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   const int testDataSize = rand() % MAX_DATA_SET_SIZE;
   int testData[testDataSize];
 
@@ -349,22 +418,24 @@ START_TEST(pop) {
     testData[i] = rand() % MAX_INT_VALUE;
 
   for (i = 0; i < testDataSize; i++)
-    myLL->append(myLL, &testData[i]);
+    myLL->append(myLL, &testData[i], &status);
 
   void* dataPtr = NULL;
   int dataOut = 0;
   for (i = 0; i < testDataSize; i++) {
-    dataPtr = myLL->pop(myLL);
+    dataPtr = myLL->pop(myLL, &status);
+    ck_assert_int_eq(status, OK);
     ck_assert_ptr_nonnull(dataPtr);
 
     dataOut = *(int*)dataPtr;
     ck_assert_int_eq(dataOut, testData[i]);
   }
 
-  int empty = myLL->empty(myLL);
+  int empty = myLL->empty(myLL, &status);
   ck_assert_int_eq(empty, 1);
 
-  myLL->delete(myLL);
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE POP END */
@@ -374,14 +445,20 @@ START_TEST(pop) {
 /* TEST CASE PULL START */
 
 START_TEST(pull_invalid_params) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
-  void* dataPtr = myLL->pull(NULL);
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
+
+  void* dataPtr = myLL->pull(NULL, &status);
+  ck_assert_int_eq(status, NULL_SELF);
   ck_assert_ptr_null(dataPtr);
-  myLL->delete(myLL);
+
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 START_TEST(pull) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   const int testDataSize = rand() % MAX_DATA_SET_SIZE;
   int testData[testDataSize];
 
@@ -390,22 +467,24 @@ START_TEST(pull) {
     testData[i] = rand() % MAX_INT_VALUE;
 
   for (i = 0; i < testDataSize; i++)
-    myLL->prepend(myLL, &testData[i]);
+    myLL->prepend(myLL, &testData[i], &status);
 
   void* dataPtr = NULL;
   int dataOut = 0;
   for (i = 0; i < testDataSize; i++) {
-    dataPtr = myLL->pull(myLL);
+    dataPtr = myLL->pull(myLL, &status);
+    ck_assert_int_eq(status, OK);
     ck_assert_ptr_nonnull(dataPtr);
 
     dataOut = *(int*)dataPtr;
     ck_assert_int_eq(dataOut, testData[i]);
   }
 
-  int empty = myLL->empty(myLL);
+  int empty = myLL->empty(myLL, &status);
   ck_assert_int_eq(empty, 1);
 
-  myLL->delete(myLL);
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE PULL END */
@@ -415,20 +494,29 @@ START_TEST(pull) {
 /* TEST CASE REMOVE START */
 
 START_TEST(remove_invalid_params) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   void* dataPtr = NULL;
 
-  dataPtr = myLL->remove(NULL, 0);
+  dataPtr = myLL->remove(NULL, 0, &status);
+  ck_assert_int_eq(status, NULL_SELF);
   ck_assert_ptr_null(dataPtr);
 
-  dataPtr = myLL->remove(myLL, 0);
+  dataPtr = myLL->remove(myLL, -1, &status);
+  ck_assert_int_eq(status, LESS_THAN_INDEX);
   ck_assert_ptr_null(dataPtr);
 
-  myLL->delete(myLL);
+  dataPtr = myLL->remove(myLL, 0, &status);
+  ck_assert_int_eq(status, GREATER_THAN_INDEX);
+  ck_assert_ptr_null(dataPtr);
+
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 START_TEST(remove) {
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   const int testDataSize = rand() % MAX_DATA_SET_SIZE;
   int testData[testDataSize];
 
@@ -437,27 +525,29 @@ START_TEST(remove) {
     testData[i] = rand() % MAX_INT_VALUE;
 
   for (i = 0; i < testDataSize; i++)
-    myLL->append(myLL, &testData[i]);
+    myLL->append(myLL, &testData[i], &status);
 
   int index = 0;
   void* dataPtr = NULL;
   int initData = 0;
   int dataOut = 0;;
   for (i = 0; i < testDataSize; i++) {
-    index = rand() % myLL->length(myLL);
-    initData = *(int*)myLL->at(myLL, index);
+    index = rand() % myLL->length(myLL, &status);
+    initData = *(int*)myLL->at(myLL, index, &status);
 
-    dataPtr = myLL->remove(myLL, index);
+    dataPtr = myLL->remove(myLL, index, &status);
+    ck_assert_int_eq(status, OK);
     ck_assert_ptr_nonnull(dataPtr);
 
     dataOut = *(int*)dataPtr;
     ck_assert_int_eq(dataOut, initData);
   }
 
-  int empty = myLL->empty(myLL);
+  int empty = myLL->empty(myLL, &status);
   ck_assert_int_eq(empty, 1);
 
-  myLL->delete(myLL);
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE REMOVE END */
@@ -466,14 +556,27 @@ START_TEST(remove) {
 
 /* TEST CASE CLEAR START */
 
+START_TEST(clear_invalid_params) {
+  LDSC_error status = OK;
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
+
+  myLL->clear(NULL, &status);
+  ck_assert_int_eq(status, NULL_SELF);
+
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
+} END_TEST
+
+
 START_TEST(clear) {
+  LDSC_error status = OK;
   typedef struct privateData {
     int length;
     void* head;
     void* tail;
   } privateData;
   
-  LDSC_linkedList* myLL = LDSC_linkedList_init();
+  LDSC_linkedList* myLL = LDSC_linkedList_init(&status);
   const int testDataSize = rand() % MAX_DATA_SET_SIZE;
   int testData[testDataSize];
 
@@ -482,17 +585,20 @@ START_TEST(clear) {
     testData[i] = rand() % MAX_INT_VALUE;
 
   for (i = 0; i < testDataSize; i++)
-    myLL->append(myLL, &testData[i]);
+    myLL->append(myLL, &testData[i], &status);
 
-  myLL->clear(myLL);
-  int empty = myLL->empty(myLL);
+  myLL->clear(myLL, &status);
+  ck_assert_int_eq(status, OK);
+  
+  int empty = myLL->empty(myLL, &status);
   ck_assert_int_eq(empty, 1);
 
   privateData* pd = (privateData*)myLL->pd;
   ck_assert_ptr_null(pd->head);
   ck_assert_ptr_null(pd->tail);
 
-  myLL->delete(myLL);
+  myLL->delete(myLL, &status);
+  ck_assert_int_eq(status, OK);
 } END_TEST
 
 /* TEST CASE CLEAR END */
@@ -562,6 +668,7 @@ Suite* LDSC_linkedList_suite() {
   suite_add_tcase(s, tc_remove);
 
   TCase* tc_clear = tcase_create("clear");
+  tcase_add_test(tc_clear, clear_invalid_params);
   tcase_add_test(tc_clear, clear);
   suite_add_tcase(s, tc_clear );
 
