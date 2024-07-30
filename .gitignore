@@ -1,6 +1,9 @@
 # object files
 src/*.o
 
+# static library
+libLDSC.a
+
 # for lsp usage
 .cache/
 *.json
