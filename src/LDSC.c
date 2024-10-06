@@ -122,3 +122,134 @@ int LDSC_append(LDSC_structure* structure, void* data_ptr) {
   return 0;
 }
 
+/** @brief  Add an element to the front of the structure.
+ *
+ *  @param  structure   (IO) - Pointer to data structure.
+ *  @param  data_ptr    (I) - Pointer to the data.
+ *  @return 0 == OK, !0 == Error.
+ */
+int LDSC_prepend(LDSC_structure* structure, void* data_ptr) {
+  /* if structure or data is NULL */
+  if (!structure || !data_ptr) return LDSC_ERROR;
+  
+  /* is a valid structure for append */
+  if (!(structure->id & PREPEND_MASK)) return LDSC_INVALID_STRUCT;
+
+  /* initialize the node */
+  Node* new_node = node_init(structure->id);
+  new_node->data_ptr = data_ptr;
+
+  /* insert new node (empty structure) */
+  if (structure->length == 0) {
+    structure->head = new_node;
+    if (structure->id & HEAD_TAIL_MASK) {
+      structure->tail = new_node;
+    }
+    structure->length++;
+    return 0;
+  }
+
+  /***** insert new node (non-empty structure) *****/
+  /* set next of new node */
+  new_node->next = structure->head;
+
+  /* set prev of current head if applicable */
+  if (structure->id & DOUBLY_LINKED_MASK) {
+    structure->head->prev = new_node;
+  }
+
+  /* set structure head to new node */
+  structure->head = new_node;
+
+  /* increase structure length */
+  structure->length++;
+
+  return 0;
+}
+
+/** @brief  Add an element at the index.
+ *
+ *  @param  structure   (IO) - Pointer to data structure.
+ *  @param  data_ptr    (I) - Pointer to the data.
+ *  @param  index       (I) - Index, can be negative.
+ *  @return 0 == OK, !0 == Error.
+ */
+int LDSC_insert(LDSC_structure* structure, void* data_ptr, int index) {
+  /* if structure or data is NULL */
+  if (!structure || !data_ptr) return LDSC_ERROR;
+  
+  /* is a valid structure for append */
+  if (!(structure->id & INSERT_MASK)) return LDSC_INVALID_STRUCT;
+
+  /* invalid index */
+  if (index > structure->length || index < -(structure->length + 1)) return LDSC_INVALID_INDEX;
+
+  /* initialize the node */
+  Node* new_node = node_init(structure->id);
+  new_node->data_ptr = data_ptr;
+
+  /* insert new node (empty structure) */
+  if (structure->length == 0) {
+    structure->head = new_node;
+    if (structure->id & HEAD_TAIL_MASK) {
+      structure->tail = new_node;
+    }
+    structure->length++;
+    return 0;
+  }
+
+  /***** head insert case *****/
+  if (index == 0 || index == -(structure->length + 1)) {
+    /* set next of new node */
+    new_node->next = structure->head;
+
+    /* set prev of current head if applicable */
+    if (structure->id & DOUBLY_LINKED_MASK) {
+      structure->head->prev = new_node;
+    }
+
+    /* set structure head to new node */
+    structure->head = new_node;
+
+    /* increase structure length */
+    structure->length++;
+
+    return 0;
+  }
+
+
+  /***** tail insert case *****/
+  if (index == structure->length || index == -1) {
+    /* get last node */
+    Node* last_node = NULL;
+    if (structure->id & HEAD_TAIL_MASK) {
+      last_node = structure->tail;
+    } else {
+      last_node = structure->head;
+      while (last_node->next != NULL) {
+        last_node = last_node->next;
+      }
+    }
+
+    /* set next of current tail */
+    last_node->next = new_node; 
+
+    /* if DL, set new node's prev to current tail */
+    if (structure->id & DOUBLY_LINKED_MASK) {
+      new_node->prev = last_node; 
+    }
+
+    /* set structure tail to new node */
+    structure->tail = new_node;
+
+    /* increase structure length */
+    structure->length++;
+    
+    return 0;
+  }
+
+  /***** standard insert case *****/
+  Node* prev_node = structure->head;
+
+  return 0;
+}

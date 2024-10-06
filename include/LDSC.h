@@ -11,6 +11,7 @@
 
 #define LDSC_ERROR            -1
 #define LDSC_INVALID_STRUCT   -2
+#define LDSC_INVALID_INDEX    -3
 
 /****************************** General Structure ******************************/
 
