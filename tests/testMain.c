@@ -2,13 +2,10 @@
 #include <stdio.h>
 
 #include <check.h>
-#include <LDSC.h>
 
-#include "LDSC_stack.h"
-#include "test_linkedLists.h"
-#include "test_stack.h"
-#include "test_queue.h"
+#include "test_suites.h"
 
+/****************************** Suite Runner Init ******************************/
 
 START_TEST(check) {} END_TEST
 Suite* sr_init(void) {
@@ -20,6 +17,8 @@ Suite* sr_init(void) {
   suite_add_tcase(s, tc_core);
   return s;
 }
+
+/****************************** Main ******************************/
 
 int main() {
   printf("\n");

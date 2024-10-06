@@ -8,7 +8,7 @@ TESTS = $(wildcard tests/*.c)
 TARGET = libLDSC.a
 
 TESTTARGET = test_runner
-CFLAGSTEST = -std=c11 -Iinclude -Wall
+CFLAGSTEST = -std=c99 -Iinclude -Wall -Werror
 LDFLAGS = -lcheck -lm -lsubunit
 
 all: $(TARGET)
