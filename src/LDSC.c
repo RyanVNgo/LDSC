@@ -249,7 +249,34 @@ int LDSC_insert(LDSC_structure* structure, void* data_ptr, int index) {
   }
 
   /***** standard insert case *****/
+  /* set index to positive equivalent if negative */
+  /**
+   * This can be optimized by traversing backwards in the case
+   * that the tail is available and the structure is
+   * doubly linked. This may/will be a future implementation
+   */
+  if (index < 0) index = structure->length + 1 + index;
+
+  /* reach node before insert */
   Node* prev_node = structure->head;
+  for (int i = 0; i < index - 1; i++) {
+    prev_node = prev_node->next;
+  }
+
+  /* set next of new node */
+  new_node->next = prev_node->next;
+
+  /* set next of previous node */
+  prev_node->next = new_node;
+
+  /* if doubly linked, set prev of new node and next of new node */
+  if (structure->id & DOUBLY_LINKED_MASK) {
+    new_node->prev = prev_node;
+    new_node->next->prev = new_node;
+  }
+
+  /* increase structure length */
+  structure->length++;
 
   return 0;
 }
