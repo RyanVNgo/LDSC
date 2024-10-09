@@ -263,7 +263,6 @@ START_TEST(insert) {
   ck_assert_ptr_eq(data_tracker[2], my_linked_list_3->head->next->data_ptr);
   ck_assert_ptr_eq(data_tracker[1], my_linked_list_3->tail->data_ptr);
   LDSC_delete(my_linked_list_3, NULL);
-
 } END_TEST
 
 /* TEST CASE INSERT END */

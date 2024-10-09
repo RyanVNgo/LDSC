@@ -280,3 +280,54 @@ int LDSC_insert(LDSC_structure* structure, void* data_ptr, int index) {
 
   return 0;
 }
+
+int LDSC_push(LDSC_structure* structure, void* data_ptr) {
+  /* if structure or data is NULL */
+  if (!structure || !data_ptr) return LDSC_ERROR;
+  
+  /* is a valid structure for append */
+  if (!(structure->id & PUSH_MASK)) return LDSC_INVALID_STRUCT;
+
+  /* initialize the node */
+  Node* new_node = node_init(structure->id);
+  new_node->data_ptr = data_ptr;
+
+  /* insert new node (empty structure) */
+  if (structure->length == 0) {
+    structure->head = new_node;
+    if (structure->id & HEAD_TAIL_MASK) {
+      structure->tail = new_node;
+    }
+    structure->length++;
+    return 0;
+  }
+
+  /***** insert new node (non-empty structure) *****/
+  /* get last node */
+  Node* last_node = NULL;
+  if (structure->id & HEAD_TAIL_MASK) {
+    last_node = structure->tail;
+  } else {
+    last_node = structure->head;
+    while (last_node->next != NULL) {
+      last_node = last_node->next;
+    }
+  }
+
+  /* set next of current tail */
+  last_node->next = new_node; 
+
+  /* if DL, set new node's prev to current tail */
+  if (structure->id & DOUBLY_LINKED_MASK) {
+    new_node->prev = last_node; 
+  }
+
+  /* set structure tail to new node */
+  structure->tail = new_node;
+
+  /* increase structure length */
+  structure->length++;
+
+  return 0;
+}
+

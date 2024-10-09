@@ -90,6 +90,32 @@ START_TEST(empty) {
 
 /* TEST CASE EMPTY END */
 
+/**************************************************/
+
+/* TEST CASE PUSH START */
+
+START_TEST(push_invalid_params) {
+  LDSC_structure* my_stack = LDSC_stack_init();
+  int* data = malloc(sizeof(int));
+  int status = 0;
+
+  /* should return error value with NULL structure */
+  status = LDSC_push(NULL, data);
+  ck_assert_int_eq(status, LDSC_ERROR);
+
+  status = LDSC_push(my_stack, NULL);
+  ck_assert_int_eq(status, LDSC_ERROR);
+
+  free(data);
+  LDSC_delete(my_stack, NULL);
+} END_TEST
+
+START_TEST(push) {
+
+} END_TEST
+
+/* TEST CASE PUSH END */
+
 /****************************** Suite Definition ******************************/
 
 Suite* LDSC_stack_suite(void) {
@@ -106,9 +132,14 @@ Suite* LDSC_stack_suite(void) {
   suite_add_tcase(stack_suite, tc_length);
 
   TCase* tc_empty = tcase_create("empty");
-  tcase_add_test(tc_empty, empty);
   tcase_add_test(tc_empty, empty_null_structure);
+  tcase_add_test(tc_empty, empty);
   suite_add_tcase(stack_suite, tc_empty);
+
+  TCase* tc_push = tcase_create("push");
+  tcase_add_test(tc_push, push_invalid_params);
+  tcase_add_test(tc_push, push);
+  suite_add_tcase(stack_suite, tc_push);
 
   return stack_suite;
 }
