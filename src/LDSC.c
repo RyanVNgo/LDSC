@@ -281,6 +281,12 @@ int LDSC_insert(LDSC_structure* structure, void* data_ptr, int index) {
   return 0;
 }
 
+/** @brief  Add an element to the top/head.
+ *
+ *  @param  structure   (IO) - Pointer to data structure.
+ *  @param  data_ptr    (I) - Pointer to the data.
+ *  @return 0 == OK, !0 == Error.
+ */
 int LDSC_push(LDSC_structure* structure, void* data_ptr) {
   /* if structure or data is NULL */
   if (!structure || !data_ptr) return LDSC_ERROR;

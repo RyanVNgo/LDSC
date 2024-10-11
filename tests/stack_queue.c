@@ -1,4 +1,4 @@
-#include "test_suites.h"
+#include "suites.h"
 
 #include <stdlib.h>
 
